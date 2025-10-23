@@ -12,6 +12,7 @@ import {
 import QuarterSelector from '../components/QuarterSelector';
 import PaymentsTable from '../components/PaymentsTable';
 import AddPaymentModal from '../components/AddPaymentModal';
+import ImportModal from '../components/ImportModal';
 import { Payment, Quarter } from '../types';
 import { loadPayments, savePayments } from '../utils/localStorage';
 import { getCurrentQuarter } from '../utils/dateUtils';
@@ -20,6 +21,7 @@ const IncomesPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [selectedQuarter, setSelectedQuarter] = useState<Quarter>(getCurrentQuarter());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     const loadedPayments = loadPayments();
@@ -36,6 +38,12 @@ const IncomesPage: React.FC = () => {
     savePayments(updatedPayments);
   };
 
+  const handleImportPayments = (importedPayments: Payment[]) => {
+    const updatedPayments = [...payments, ...importedPayments];
+    setPayments(updatedPayments);
+    savePayments(updatedPayments);
+  };
+
   const handleDeletePayment = (paymentId: string) => {
     const updatedPayments = payments.filter(p => p.id !== paymentId);
     setPayments(updatedPayments);
@@ -43,8 +51,7 @@ const IncomesPage: React.FC = () => {
   };
 
   const handleImportFile = () => {
-    // TODO: Implement file import logic
-    console.log('Import file functionality to be implemented');
+    setIsImportModalOpen(true);
   };
 
   const filteredPayments = payments.filter(payment => {
@@ -106,6 +113,12 @@ const IncomesPage: React.FC = () => {
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddPayment={handleAddPayment}
+      />
+
+      <ImportModal
+        open={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportPayments={handleImportPayments}
       />
     </Box>
   );
