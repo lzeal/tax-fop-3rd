@@ -35,6 +35,7 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
     amount: '',
     counterparty: '',
     counterpartyAccount: '',
+    description: '', // Призначення платежу
   });
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -95,6 +96,7 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
       amountUAH,
       counterparty: formData.counterparty,
       counterpartyAccount: formData.counterpartyAccount,
+      description: formData.description || undefined,
       exchangeRate: formData.currencyCode !== 'UAH' ? exchangeRate || undefined : undefined,
     };
 
@@ -109,6 +111,7 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
       amount: '',
       counterparty: '',
       counterpartyAccount: '',
+      description: '',
     });
     setExchangeRate(null);
     setError('');
@@ -214,6 +217,17 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, counterpartyAccount: e.target.value })
               }
+            />
+            
+            <TextField
+              label="Призначення платежу"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              multiline
+              rows={2}
+              placeholder="Опис або призначення платежу"
             />
           </Box>
         </Box>

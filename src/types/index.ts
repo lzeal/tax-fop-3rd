@@ -6,6 +6,7 @@ export interface Payment {
   amountUAH: number;
   counterparty: string;
   counterpartyAccount: string;
+  description?: string; // Призначення платежу
   exchangeRate?: number;
 }
 
@@ -35,7 +36,8 @@ export interface ImportColumnMapping {
   currencyColumn: string; // Назва колонки з валютою
   counterpartyColumn: string; // Назва колонки з контрагентом
   accountColumn: string; // Назва колонки з рахунком
-  descriptionColumn?: string; // Опціональна колонка з описом
+  ownAccountColumn?: string; // Назва колонки з власним рахунком
+  descriptionColumn?: string; // Опціональна колонка з описом/призначенням
 }
 
 export interface ImportConfig {
@@ -47,6 +49,10 @@ export interface ImportConfig {
   dateFormat: string; // Формат дати (наприклад "dd.MM.yyyy")
   filterIncoming: boolean; // Чи фільтрувати тільки надходження
   amountSignColumn?: string; // Колонка з знаком суми (+ або -)
+  // Нові поля для фільтрації
+  ownBankName?: string; // Назва свого банку для фільтрації продажу валюти
+  mainAccountPrefix: string; // Префікс основного рахунку (наприклад "2600")
+  distributionAccountPrefix?: string; // Префікс розподільчого рахунку (наприклад "2603")
 }
 
 // Дані з Excel файлу

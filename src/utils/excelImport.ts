@@ -64,6 +64,14 @@ export const parseWorksheetWithConfig = (
       columnIndices.description = findColumnIndex(config.columnMapping.descriptionColumn);
     }
     
+    if (config.columnMapping.descriptionColumn) {
+      columnIndices.description = findColumnIndex(config.columnMapping.descriptionColumn);
+    }
+    
+    if (config.columnMapping.ownAccountColumn) {
+      columnIndices.ownAccount = findColumnIndex(config.columnMapping.ownAccountColumn);
+    }
+    
     if (config.amountSignColumn) {
       columnIndices.amountSign = findColumnIndex(config.amountSignColumn);
     }
@@ -169,6 +177,30 @@ const parseRowToPayment = (
 
   // Беремо абсолютне значення суми
   amount = Math.abs(amount);
+
+  // Перевіряємо фільтри для виключення небажаних платежів
+  
+  // 1. Фільтрація розподільчого рахунку (валютні надходження на 2603)
+  if (config.distributionAccountPrefix && columnIndices.ownAccount !== undefined) {
+    const ownAccountValue = row[columnIndices.ownAccount];
+    if (ownAccountValue) {
+      const ownAccount = ownAccountValue.toString().trim();
+      if (ownAccount.startsWith(config.distributionAccountPrefix)) {
+        console.log(`Відсіяно платіж на розподільчий рахунок: ${ownAccount}`);
+        return null; // Ігноруємо платежі на розподільчий рахунок
+      }
+    }
+  }
+  
+  // 2. Фільтрація продажу валюти (платежі від власного банку)
+  if (config.ownBankName && config.ownBankName.trim()) {
+    const counterpartyName = counterpartyValue.toString().toLowerCase();
+    const ownBankName = config.ownBankName.toLowerCase();
+    if (counterpartyName.includes(ownBankName)) {
+      console.log(`Відсіяно платіж від власного банку: ${counterpartyValue}`);
+      return null; // Ігноруємо платежі від власного банку (продаж валюти)
+    }
+  }
 
   // Парсимо валюту
   let currencyCode = currencyValue ? currencyValue.toString().toUpperCase() : 'UAH';

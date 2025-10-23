@@ -139,6 +139,7 @@ const ImportModal: React.FC<ImportModalProps> = ({
           amountUAH,
           counterparty: parsed.counterparty,
           counterpartyAccount: parsed.counterpartyAccount,
+          description: parsed.description,
           exchangeRate
         });
       }

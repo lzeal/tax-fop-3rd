@@ -15,11 +15,15 @@ export const createDefaultConfig = (): ImportConfig => ({
     currencyColumn: 'Валюта',
     counterpartyColumn: 'Найменування кореспондента',
     accountColumn: 'Рахунок кореспондента',
-    descriptionColumn: 'Призн.платежу'
+    ownAccountColumn: 'Рах.', // Власний рахунок
+    descriptionColumn: 'Призн.платежу' // Опис/призначення платежу
   },
   dateFormat: 'dd.MM.yyyy',
   filterIncoming: true, // Фільтруємо тільки надходження
-  amountSignColumn: 'Тип' // Колонка з ознакою платежу
+  amountSignColumn: 'Тип', // Колонка з ознакою платежу (К/Д)
+  ownBankName: 'АТ "КРЕДОБАНК"', // Буде заповнено користувачем
+  mainAccountPrefix: '2600', // Префікс основного рахунку ФОП
+  distributionAccountPrefix: '2603' // Префікс розподільчого рахунку
 });
 
 export const saveImportConfigs = (configs: ImportConfig[]): void => {

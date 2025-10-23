@@ -66,7 +66,7 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({
             <TableCell align="right">Сума</TableCell>
             <TableCell align="right">Сума в ₴</TableCell>
             <TableCell>Контрагент</TableCell>
-            <TableCell>Рахунок контрагента</TableCell>
+            <TableCell>Призначення</TableCell>
             <TableCell align="center">Дії</TableCell>
           </TableRow>
         </TableHead>
@@ -100,13 +100,13 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({
                 </Box>
               </TableCell>
               <TableCell>
-                <Typography variant="body2" sx={{ maxWidth: 200, wordBreak: 'break-word' }}>
+                <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {payment.counterparty}
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                  {payment.counterpartyAccount}
+                <Typography variant="body2" sx={{ maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {payment.description || '-'}
                 </Typography>
               </TableCell>
               <TableCell align="center">

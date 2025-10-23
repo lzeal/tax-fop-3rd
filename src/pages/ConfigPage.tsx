@@ -64,9 +64,14 @@ const ConfigPage: React.FC = () => {
         currencyColumn: '',
         counterpartyColumn: '',
         accountColumn: '',
+        ownAccountColumn: '',
+        descriptionColumn: '',
       },
       dateFormat: 'dd.MM.yyyy',
       filterIncoming: true,
+      ownBankName: '',
+      mainAccountPrefix: '2600',
+      distributionAccountPrefix: '2603',
     };
     setEditingConfig(newConfig);
     setIsModalOpen(true);
@@ -99,6 +104,11 @@ const ConfigPage: React.FC = () => {
         !editingConfig.columnMapping.amountColumn.trim() ||
         !editingConfig.columnMapping.counterpartyColumn.trim()) {
       setError('Заповніть всі обов\'язкові поля маппінгу');
+      return;
+    }
+
+    if (!editingConfig.mainAccountPrefix.trim()) {
+      setError('Введіть префікс основного рахунку');
       return;
     }
 
@@ -237,7 +247,7 @@ const ConfigPage: React.FC = () => {
             </Typography>
 
             <TextField
-              label="Колонка з датою *"
+              label="Колонка з датою"
               value={editingConfig?.columnMapping.dateColumn || ''}
               onChange={(e) => setEditingConfig(prev => 
                 prev ? { 
@@ -251,7 +261,7 @@ const ConfigPage: React.FC = () => {
             />
 
             <TextField
-              label="Колонка з сумою *"
+              label="Колонка з сумою"
               value={editingConfig?.columnMapping.amountColumn || ''}
               onChange={(e) => setEditingConfig(prev => 
                 prev ? { 
@@ -278,7 +288,7 @@ const ConfigPage: React.FC = () => {
             />
 
             <TextField
-              label="Колонка з контрагентом *"
+              label="Колонка з контрагентом"
               value={editingConfig?.columnMapping.counterpartyColumn || ''}
               onChange={(e) => setEditingConfig(prev => 
                 prev ? { 
@@ -305,7 +315,21 @@ const ConfigPage: React.FC = () => {
             />
 
             <TextField
-              label="Колонка з описом"
+              label="Колонка з власним рахунком"
+              value={editingConfig?.columnMapping.ownAccountColumn || ''}
+              onChange={(e) => setEditingConfig(prev => 
+                prev ? { 
+                  ...prev, 
+                  columnMapping: { ...prev.columnMapping, ownAccountColumn: e.target.value }
+                } : null
+              )}
+              fullWidth
+              placeholder="Наприклад: Рах."
+              helperText="Потрібно для фільтрації розподільчого рахунку"
+            />
+
+            <TextField
+              label="Колонка з описом/призначенням"
               value={editingConfig?.columnMapping.descriptionColumn || ''}
               onChange={(e) => setEditingConfig(prev => 
                 prev ? { 
@@ -315,6 +339,7 @@ const ConfigPage: React.FC = () => {
               )}
               fullWidth
               placeholder="Наприклад: Призн.платежу"
+              helperText="Колонка з описом або призначенням платежу"
             />
 
             <TextField
@@ -326,6 +351,44 @@ const ConfigPage: React.FC = () => {
               fullWidth
               placeholder="Наприклад: Тип"
             />
+
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Фільтрація платежів
+            </Typography>
+
+            <TextField
+              label="Назва свого банку (для фільтрації продажу валюти)"
+              value={editingConfig?.ownBankName || ''}
+              onChange={(e) => setEditingConfig(prev => 
+                prev ? { ...prev, ownBankName: e.target.value } : null
+              )}
+              fullWidth
+              placeholder="Наприклад: ПриватБанк"
+              helperText="Платежі від цього банку будуть відсіяні як продаж валюти"
+            />
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Префікс основного рахунку"
+                value={editingConfig?.mainAccountPrefix || ''}
+                onChange={(e) => setEditingConfig(prev => 
+                  prev ? { ...prev, mainAccountPrefix: e.target.value } : null
+                )}
+                sx={{ flex: 1 }}
+                placeholder="2600"
+                helperText="Рахунки ФОП"
+              />
+              <TextField
+                label="Префікс розподільчого рахунку"
+                value={editingConfig?.distributionAccountPrefix || ''}
+                onChange={(e) => setEditingConfig(prev => 
+                  prev ? { ...prev, distributionAccountPrefix: e.target.value } : null
+                )}
+                sx={{ flex: 1 }}
+                placeholder="2603"
+                helperText="Валютні рахунки (будуть відсіяні)"
+              />
+            </Box>
 
             <FormControl fullWidth>
               <InputLabel>Формат дати</InputLabel>

@@ -2,11 +2,18 @@ import { Quarter } from '../types';
 
 export const getCurrentQuarter = (): Quarter => {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const quarter = Math.floor(month / 3) + 1 as 1 | 2 | 3 | 4;
+  let year = now.getFullYear();
+  let month = now.getMonth();
+  let quarter = Math.floor(month / 3) + 1;
   
-  return { year, quarter };
+  // Повертаємо попередній квартал
+  quarter--;
+  if (quarter === 0) {
+    quarter = 4;
+    year--;
+  }
+  
+  return { year, quarter: quarter as 1 | 2 | 3 | 4 };
 };
 
 export const getQuarterRange = (quarter: Quarter): { start: Date; end: Date } => {
