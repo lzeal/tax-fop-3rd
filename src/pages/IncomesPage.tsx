@@ -4,10 +4,17 @@ import {
   Box,
   Button,
   Paper,
+  Card,
+  CardContent,
+  Chip,
+  LinearProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Upload as UploadIcon,
+  TrendingUp as TrendingUpIcon,
+  AccountBalance as AccountBalanceIcon,
+  Warning as WarningIcon,
 } from '@mui/icons-material';
 import QuarterSelector from '../components/QuarterSelector';
 import PaymentsTable from '../components/PaymentsTable';
@@ -16,6 +23,13 @@ import ImportModal from '../components/ImportModal';
 import { Payment, Quarter } from '../types';
 import { loadPayments, savePayments } from '../utils/localStorage';
 import { getCurrentQuarter } from '../utils/dateUtils';
+import { 
+  updateAccumulatedDataWithPayments, 
+  getCumulativeData, 
+  getQuarterData,
+  getSimplifiedSystemLimitUsage,
+  checkSimplifiedSystemLimit
+} from '../utils/accumulatedData';
 
 const IncomesPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -27,6 +41,13 @@ const IncomesPage: React.FC = () => {
     const loadedPayments = loadPayments();
     setPayments(loadedPayments);
   }, []);
+
+  // Оновлюємо накопичувальні дані при зміні платежів
+  useEffect(() => {
+    if (payments.length > 0) {
+      updateAccumulatedDataWithPayments(payments, selectedQuarter.year);
+    }
+  }, [payments, selectedQuarter.year]);
 
   const handleAddPayment = (payment: Omit<Payment, 'id'>) => {
     const newPayment: Payment = {
@@ -61,11 +82,140 @@ const IncomesPage: React.FC = () => {
     return paymentDate >= quarterStart && paymentDate <= quarterEnd;
   });
 
+  // Отримуємо накопичувальні дані
+  const accumulatedData = updateAccumulatedDataWithPayments(payments, selectedQuarter.year);
+  const quarterData = getQuarterData(accumulatedData, selectedQuarter.quarter);
+  const cumulativeData = getCumulativeData(accumulatedData, selectedQuarter.quarter);
+  const limitUsage = getSimplifiedSystemLimitUsage(accumulatedData, selectedQuarter.quarter);
+  const withinLimit = checkSimplifiedSystemLimit(accumulatedData, selectedQuarter.quarter);
+
+  // Форматування валюти
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('uk-UA', {
+      style: 'currency',
+      currency: 'UAH',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
         Надходження ФОП
       </Typography>
+      
+      {/* Статистика та ліміти */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Статистика за {selectedQuarter.year} рік
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <Card sx={{ minWidth: 200, flex: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <TrendingUpIcon color="primary" />
+                <Typography variant="subtitle2">Квартальний дохід</Typography>
+              </Box>
+              <Typography variant="h6">
+                {formatCurrency(quarterData.incomeTotal)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedQuarter.quarter} квартал {selectedQuarter.year}
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ minWidth: 200, flex: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <AccountBalanceIcon color="secondary" />
+                <Typography variant="subtitle2">Накопичувальний дохід</Typography>
+              </Box>
+              <Typography variant="h6">
+                {formatCurrency(cumulativeData.incomeTotal)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                З початку року
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ minWidth: 220, flex: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                {withinLimit ? (
+                  <TrendingUpIcon color="success" />
+                ) : (
+                  <WarningIcon color="warning" />
+                )}
+                <Typography variant="subtitle2">Ліміт спрощеної системи</Typography>
+              </Box>
+              <Typography variant="h6" color={withinLimit ? 'success.main' : 'warning.main'}>
+                {limitUsage}%
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={Math.min(limitUsage, 100)}
+                color={withinLimit ? 'success' : 'warning'}
+                sx={{ mb: 1 }}
+              />
+              <Typography variant="body2" color="text.secondary">
+                з 12 млн грн на рік
+              </Typography>
+              {!withinLimit && (
+                <Chip
+                  label="Перевищення ліміту!"
+                  color="warning"
+                  size="small"
+                  sx={{ mt: 1 }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Розрахунок податків */}
+        <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+          Розрахунок податків (накопичувально)
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Card sx={{ minWidth: 180, flex: 1 }}>
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Єдиний податок (5%)
+              </Typography>
+              <Typography variant="h6">
+                {formatCurrency(cumulativeData.singleTax)}
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ minWidth: 180, flex: 1 }}>
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Військовий збір (1%)
+              </Typography>
+              <Typography variant="h6">
+                {formatCurrency(cumulativeData.militaryTax)}
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ minWidth: 180, flex: 1 }}>
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Всього до сплати
+              </Typography>
+              <Typography variant="h6" color="primary">
+                {formatCurrency(cumulativeData.singleTax + cumulativeData.militaryTax)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+      </Paper>
       
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box sx={{ 

@@ -5,6 +5,8 @@ import { CssBaseline } from '@mui/material';
 import Layout from './components/Layout';
 import IncomesPage from './pages/IncomesPage';
 import ConfigPage from './pages/ConfigPage';
+import { FOPProfilePage } from './pages/FOPProfilePage';
+import { ReportsPage } from './pages/ReportsPage';
 
 const theme = createTheme({
   palette: {
@@ -35,6 +37,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/incomes" replace />} />
             <Route path="/incomes" element={<IncomesPage />} />
+            <Route path="/profile" element={<FOPProfilePage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/config" element={<ConfigPage />} />
           </Routes>
         </Layout>

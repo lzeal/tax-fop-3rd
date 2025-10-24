@@ -23,11 +23,19 @@ import {
   FormControlLabel,
   Checkbox,
   Alert,
+  Divider,
+  Card,
+  CardContent,
+  CardActions,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  CloudDownload as CloudDownloadIcon,
+  CloudUpload as CloudUploadIcon,
+  DeleteForever as DeleteForeverIcon,
+  Storage as StorageIcon,
 } from '@mui/icons-material';
 import { ImportConfig } from '../types';
 import { 
@@ -36,6 +44,14 @@ import {
   deleteConfig, 
   createDefaultConfig 
 } from '../utils/importConfigs';
+import {
+  downloadDataExport,
+  importDataFromJson,
+  applyImportedData,
+  clearAllData,
+  getStorageInfo,
+  formatFileSize
+} from '../utils/dataExport';
 
 const ConfigPage: React.FC = () => {
   const [configs, setConfigs] = useState<ImportConfig[]>([]);
@@ -430,6 +446,143 @@ const ConfigPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Розділ експорту/імпорту даних */}
+      <Paper sx={{ p: 3, mt: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Резервне копіювання та відновлення даних
+        </Typography>
+        
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Експортуйте всі дані для резервного копіювання або перенесення на інший пристрій
+        </Typography>
+
+        <Box sx={{ display: 'flex', gap: 2, mt: 3, mb: 3, flexWrap: 'wrap' }}>
+          <Card sx={{ minWidth: 250, flex: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <CloudDownloadIcon color="primary" />
+                <Typography variant="h6">Експорт даних</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Завантажити всі дані у вигляді JSON файлу
+              </Typography>
+              <Typography variant="caption" display="block">
+                Включає: платежі, профіль ФОП, конфігурації імпорту
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                variant="contained"
+                startIcon={<CloudDownloadIcon />}
+                onClick={() => downloadDataExport()}
+                fullWidth
+              >
+                Експортувати дані
+              </Button>
+            </CardActions>
+          </Card>
+
+          <Card sx={{ minWidth: 250, flex: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <CloudUploadIcon color="secondary" />
+                <Typography variant="h6">Імпорт даних</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Відновити дані з раніше збереженого файлу
+              </Typography>
+              <Typography variant="caption" display="block">
+                Підтримується формат JSON
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
+                component="label"
+                fullWidth
+              >
+                Вибрати файл
+                <input
+                  type="file"
+                  accept=".json"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const result = event.target?.result as string;
+                        const importResult = importDataFromJson(result);
+                        
+                        if (importResult.success) {
+                          if (window.confirm('Імпортувати дані? Це замінить поточні дані.')) {
+                            applyImportedData(importResult.imported, {
+                              replacePayments: true,
+                              replaceProfile: true,
+                              replaceConfigs: true,
+                              replaceAccumulatedData: true
+                            });
+                            window.location.reload();
+                          }
+                        } else {
+                          alert('Помилка імпорту: ' + importResult.errors.join(', '));
+                        }
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                />
+              </Button>
+            </CardActions>
+          </Card>
+
+          <Card sx={{ minWidth: 250, flex: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <StorageIcon color="info" />
+                <Typography variant="h6">Інформація про дані</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {(() => {
+                  const storageInfo = getStorageInfo();
+                  return `Збережено: ${formatFileSize(storageInfo.totalSize)}`;
+                })()}
+              </Typography>
+              <Typography variant="caption" display="block">
+                {(() => {
+                  const storageInfo = getStorageInfo();
+                  return `Елементів: ${storageInfo.itemCount}`;
+                })()}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteForeverIcon />}
+                onClick={() => {
+                  if (window.confirm('УВАГА! Це видалить ВСІ дані без можливості відновлення. Продовжити?')) {
+                    clearAllData();
+                    window.location.reload();
+                  }
+                }}
+                fullWidth
+              >
+                Очистити всі дані
+              </Button>
+            </CardActions>
+          </Card>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+        
+        <Alert severity="info">
+          <strong>Рекомендація:</strong> Регулярно створюйте резервні копії ваших даних, 
+          особливо перед важливими звітними періодами. Зберігайте файли експорту в надійному місці.
+        </Alert>
+      </Paper>
     </Box>
   );
 };

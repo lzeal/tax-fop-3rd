@@ -39,6 +39,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Button>
           <Button
             color="inherit"
+            onClick={() => handleNavigation('/profile')}
+            sx={{
+              backgroundColor: location.pathname === '/profile' ? 'rgba(255,255,255,0.1)' : 'transparent'
+            }}
+          >
+            Профіль ФОП
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigation('/reports')}
+            sx={{
+              backgroundColor: location.pathname === '/reports' ? 'rgba(255,255,255,0.1)' : 'transparent'
+            }}
+          >
+            Звіти F0103309
+          </Button>
+          <Button
+            color="inherit"
             onClick={() => handleNavigation('/config')}
             sx={{
               backgroundColor: location.pathname === '/config' ? 'rgba(255,255,255,0.1)' : 'transparent'
