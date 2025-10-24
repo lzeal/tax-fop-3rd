@@ -7,7 +7,15 @@ export const getExchangeRate = async (
   date: Date
 ): Promise<ExchangeRate | null> => {
   try {
-    const dateString = date.toISOString().slice(0, 10).replace(/-/g, '');
+    console.log('Fetching exchange rate for', currencyCode, 'on', date);
+    
+    // Використовуємо локальну дату, щоб уникнути проблем з timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateString = `${year}${month}${day}`;
+    
+    console.log('dateString:', dateString);
     const url = `${NBU_API_BASE}?valcode=${currencyCode}&date=${dateString}&json`;
     
     const response = await fetch(url);
@@ -60,5 +68,6 @@ export const convertToUAH = (
     return amount; // Return original amount if no rate
   }
   
-  return amount * exchangeRate;
+  // Заокруглюємо до копійок (2 знаки після коми)
+  return Math.round((amount * exchangeRate) * 100) / 100;
 };

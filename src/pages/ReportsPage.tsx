@@ -16,12 +16,17 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
   Assessment as AssessmentIcon,
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 
 import { Quarter, FOPProfile } from '../types';
@@ -40,12 +45,15 @@ import {
   downloadXML, 
   validateReport 
 } from '../utils/xmlGenerator';
+import { calculateQuarterlyData } from '../utils/taxCalculations';
+import TaxReportForm from '../components/TaxReportForm';
 
 export const ReportsPage: React.FC = () => {
   const [profile, setProfile] = useState<FOPProfile | null>(null);
   const [selectedQuarter, setSelectedQuarter] = useState<Quarter>(getCurrentQuarter());
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     const savedProfile = loadFOPProfile();
@@ -264,7 +272,7 @@ export const ReportsPage: React.FC = () => {
                   <Card variant="outlined" sx={{ minWidth: 200, flex: 1 }}>
                     <CardContent>
                       <Typography variant="subtitle2" gutterBottom>
-                        Доходи в інвалюті
+                        Доходи в іноземній валюті
                       </Typography>
                       <Typography variant="h6">
                         {formatCurrency(reportData.cumulativeData.incomeForeign)}
@@ -357,8 +365,19 @@ export const ReportsPage: React.FC = () => {
             </Card>
           )}
 
-          {/* Кнопка генерації */}
-          <Box sx={{ textAlign: 'center' }}>
+          {/* Кнопки генерації */}
+          <Box sx={{ textAlign: 'center', display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              size="large"
+              startIcon={<VisibilityIcon />}
+              onClick={() => setShowPreview(true)}
+              disabled={!profileComplete || !reportData}
+              sx={{ minWidth: 200 }}
+            >
+              Переглянути звіт
+            </Button>
+            
             <Button
               variant="contained"
               size="large"
@@ -369,15 +388,66 @@ export const ReportsPage: React.FC = () => {
             >
               Згенерувати XML звіт
             </Button>
-            
-            {profileComplete && reportData && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Файл буде завантажено на ваш комп'ютер
-              </Typography>
-            )}
           </Box>
+          
+          {profileComplete && reportData && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+              Переглянь звіт перед завантаженням XML файлу
+            </Typography>
+          )}
         </Stack>
       </Paper>
+
+      {/* Діалог попереднього перегляду звіту */}
+      <Dialog 
+        open={showPreview} 
+        onClose={() => setShowPreview(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: { height: '90vh' }
+        }}
+      >
+        <DialogTitle>
+          <Typography variant="h6">
+            Попередній перегляд звіту F0103309 - {selectedQuarter.quarter} квартал {selectedQuarter.year}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2 }}>
+          {profile && reportData && (() => {
+            // Створюємо дані для попереднього перегляду
+            const accumulatedData = updateAccumulatedDataWithPayments(
+              loadPayments(), 
+              selectedQuarter.year
+            );
+            const calculation = calculateQuarterlyData(accumulatedData, profile, selectedQuarter.quarter);
+            
+            return (
+              <TaxReportForm
+                profile={profile}
+                calculation={calculation}
+                quarter={selectedQuarter.quarter}
+                year={selectedQuarter.year}
+              />
+            );
+          })()}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPreview(false)}>
+            Закрити
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<DownloadIcon />}
+            onClick={() => {
+              setShowPreview(false);
+              handleGenerateReport();
+            }}
+          >
+            Завантажити XML
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

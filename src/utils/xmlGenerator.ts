@@ -127,22 +127,22 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     </T1RXXXXG2S>
     
     <!-- Доходи у звітному кварталі -->
-    <R02G1>${Math.round(report.incomeSection.nationalCurrencyIncome.currentQuarter)}</R02G1>
-    <R02G2>${Math.round(report.incomeSection.foreignCurrencyIncome.currentQuarter)}</R02G2>
-    <R02G3>${Math.round(report.incomeSection.totalIncome.currentQuarter)}</R02G3>
+    <R02G1>${(report.incomeSection.nationalCurrencyIncome.currentQuarter).toFixed(2)}</R02G1>
+    <R02G2>${(report.incomeSection.foreignCurrencyIncome.currentQuarter).toFixed(2)}</R02G2>
+    <R02G3>${(report.incomeSection.totalIncome.currentQuarter).toFixed(2)}</R02G3>
     
     <!-- Доходи з початку звітного року -->
-    <R001G3>${Math.round(report.incomeSection.nationalCurrencyIncome.cumulativeFromYearStart)}</R001G3>
-    <R002G3>${Math.round(report.incomeSection.foreignCurrencyIncome.cumulativeFromYearStart)}</R002G3>
+    <R001G3>${(report.incomeSection.nationalCurrencyIncome.cumulativeFromYearStart).toFixed(2)}</R001G3>
+    <R002G3>${(report.incomeSection.foreignCurrencyIncome.cumulativeFromYearStart).toFixed(2)}</R002G3>
     
     <!-- Загальна сума доходів з початку року -->
-    <R003G3>${Math.round(report.incomeSection.totalIncome.cumulativeFromYearStart)}</R003G3>
+    <R003G3>${(report.incomeSection.totalIncome.cumulativeFromYearStart).toFixed(2)}</R003G3>
     
     <!-- Сума єдиного податку до сплати -->
-    <R015G3>${Math.round(report.singleTaxSection.calculatedTax)}</R015G3>
+    <R015G3>${(report.singleTaxSection.calculatedTax).toFixed(2)}</R015G3>
     
     <!-- Сума військового збору до сплати -->
-    <R021G3>${Math.round(report.militaryTaxSection.calculatedTax)}</R021G3>
+    <R021G3>${(report.militaryTaxSection.calculatedTax).toFixed(2)}</R021G3>
     
     <!-- Дата заповнення -->
     <HFILL>${reportDate}</HFILL>

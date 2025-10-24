@@ -168,6 +168,32 @@ export interface AccumulatedData {
   };
 }
 
+// Розрахунки для конкретного кварталу
+export interface QuarterlyCalculation {
+  quarter: number;
+  year: number;
+  
+  // Доходи за квартал
+  quarterlyIncome: number;
+  cumulativeIncome: number;
+  
+  // Єдиний податок
+  quarterlySingleTax: number;
+  cumulativeSingleTax: number;
+  quarterlySingleTaxPaid: number;
+  cumulativeSingleTaxPaid: number;
+  
+  // Військовий збір
+  quarterlyMilitaryTax: number;
+  cumulativeMilitaryTax: number;
+  quarterlyMilitaryTaxPaid: number;
+  cumulativeMilitaryTaxPaid: number;
+  
+  // ЄСВ
+  quarterlySocialContributions: number;
+  cumulativeSocialContributions: number;
+}
+
 // Структура XML звіту F0103309
 export interface TaxReportF0103309 {
   reportingPeriod: {

@@ -95,7 +95,7 @@ const IncomesPage: React.FC = () => {
       style: 'currency',
       currency: 'UAH',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(amount);
   };
 
@@ -176,9 +176,58 @@ const IncomesPage: React.FC = () => {
           </Card>
         </Box>
 
-        {/* Розрахунок податків */}
+        {/* Розрахунок податків за квартал */}
+        <Typography variant="subtitle1" gutterBottom sx={{ mt: 3 }}>
+          Розрахунок податків за {selectedQuarter.quarter} квартал {selectedQuarter.year}
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <Card sx={{ minWidth: 180, flex: 1 }}>
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Єдиний податок (5%)
+              </Typography>
+              <Typography variant="h6">
+                {formatCurrency(quarterData.singleTax)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                За поточний квартал
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ minWidth: 180, flex: 1 }}>
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Військовий збір (1%)
+              </Typography>
+              <Typography variant="h6">
+                {formatCurrency(quarterData.militaryTax)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                За поточний квартал
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ minWidth: 180, flex: 1 }}>
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Всього за квартал
+              </Typography>
+              <Typography variant="h6" color="secondary">
+                {formatCurrency(quarterData.singleTax + quarterData.militaryTax)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                До сплати за період
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Розрахунок податків (накопичувально) */}
         <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-          Розрахунок податків (накопичувально)
+          Розрахунок податків (накопичувально з початку року)
         </Typography>
         
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -189,6 +238,9 @@ const IncomesPage: React.FC = () => {
               </Typography>
               <Typography variant="h6">
                 {formatCurrency(cumulativeData.singleTax)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                З початку року
               </Typography>
             </CardContent>
           </Card>
@@ -201,16 +253,22 @@ const IncomesPage: React.FC = () => {
               <Typography variant="h6">
                 {formatCurrency(cumulativeData.militaryTax)}
               </Typography>
+              <Typography variant="body2" color="text.secondary">
+                З початку року
+              </Typography>
             </CardContent>
           </Card>
 
           <Card sx={{ minWidth: 180, flex: 1 }}>
             <CardContent>
               <Typography variant="subtitle2" gutterBottom>
-                Всього до сплати
+                Всього накопичувально
               </Typography>
               <Typography variant="h6" color="primary">
                 {formatCurrency(cumulativeData.singleTax + cumulativeData.militaryTax)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                З початку року
               </Typography>
             </CardContent>
           </Card>

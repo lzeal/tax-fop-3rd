@@ -87,7 +87,6 @@ export const parseWorksheetWithConfig = (
 
     try {
       const payment = parseRowToPayment(row, columnIndices, config);
-      console.log(`Parsed payment from row ${i + 1}:`, payment, columnIndices);
       if (payment && (!config.filterIncoming || payment.isIncoming)) {
         payments.push(payment);
       }
@@ -168,7 +167,6 @@ const parseRowToPayment = (
   if (columnIndices.amountSign !== undefined) {
     const signValue = row[columnIndices.amountSign];
     if (signValue) {
-      console.log(`Знак суми для рядка ${row}: ${signValue}`);
       const sign = signValue.toString().trim();
       // isIncoming = sign === '+' || sign.toLowerCase() === 'дебет';
       isIncoming = sign.toLowerCase() === 'к';

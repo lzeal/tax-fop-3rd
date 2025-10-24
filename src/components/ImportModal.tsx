@@ -117,7 +117,6 @@ const ImportModal: React.FC<ImportModalProps> = ({
       
       // Конвертуємо в Payment об'єкти з курсами валют
       const payments: Payment[] = [];
-      console.log('Parsed Payments:', parsedPayments);
       for (const parsed of parsedPayments) {
         let amountUAH = parsed.amount;
         let exchangeRate: number | undefined;

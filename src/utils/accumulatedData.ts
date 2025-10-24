@@ -97,6 +97,7 @@ export const updateAccumulatedDataWithPayments = (
   
   // Перерахунок податків
   data.taxes = calculateTaxes(data);
+  console.log('Updated accumulated data:', data);
   
   saveAccumulatedData(data);
   return data;
@@ -117,8 +118,9 @@ const calculateTaxes = (data: AccumulatedData) => {
   (['q1', 'q2', 'q3', 'q4'] as const).forEach(quarter => {
     const totalIncome = data.quarterlyIncomeUAH[quarter] + data.quarterlyIncomeForeign[quarter];
     
-    result.singleTax[quarter] = Math.round(totalIncome * singleTaxRate);
-    result.militaryTax[quarter] = Math.round(totalIncome * militaryTaxRate);
+    // Заокруглюємо податки до копійок (2 знаки після коми)
+    result.singleTax[quarter] = Math.round((totalIncome * singleTaxRate) * 100) / 100;
+    result.militaryTax[quarter] = Math.round((totalIncome * militaryTaxRate) * 100) / 100;
   });
   
   return result;
