@@ -104,6 +104,7 @@ export const checkTaxLimits = (
 
 // Форматування грошової суми
 export const formatCurrency = (amount: number): string => {
+  if (amount === 0) return '';
   return amount.toLocaleString('uk-UA', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2

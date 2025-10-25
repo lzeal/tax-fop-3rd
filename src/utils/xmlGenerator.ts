@@ -112,13 +112,13 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     
     <!-- Таблиця 1: КВЕДи -->
     <T1RXXXXG1S ROWNUM="1">
-      <R001C1>${profile.kved.primary}</R001C1>
+      <R001C1>${profile.kved.primary.code}</R001C1>
     </T1RXXXXG1S>
     
     <!-- Додаткові КВЕДи -->
     ${profile.kved.additional.map((kved, index) => `
     <T1RXXXXG1S ROWNUM="${index + 2}">
-      <R001C1>${kved}</R001C1>
+      <R001C1>${kved.code}</R001C1>
     </T1RXXXXG1S>`).join('')}
     
     <!-- Таблиця 2: Опис доходів -->
@@ -229,8 +229,12 @@ export const validateReport = (report: TaxReportF0103309, profile: FOPProfile): 
     errors.push('ПІБ є обов\'язковим');
   }
   
-  if (!profile.kved.primary.trim()) {
-    errors.push('Основний КВЕД є обов\'язковим');
+  if (!profile.kved.primary.code.trim()) {
+    errors.push('Код основного КВЕДу є обов\'язковим');
+  }
+  
+  if (!profile.kved.primary.name.trim()) {
+    errors.push('Назва основного КВЕДу є обов\'язковою');
   }
   
   if (report.incomeSection.totalIncome.cumulativeFromYearStart <= 0) {

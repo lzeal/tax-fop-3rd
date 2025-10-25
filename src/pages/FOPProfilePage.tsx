@@ -67,7 +67,7 @@ export const FOPProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<FOPProfile>(createEmptyFOPProfile());
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
-  const [newKved, setNewKved] = useState('');
+  const [newKved, setNewKved] = useState({ code: '', name: '' });
 
   useEffect(() => {
     const savedProfile = loadFOPProfile();
@@ -92,15 +92,19 @@ export const FOPProfilePage: React.FC = () => {
   };
 
   const handleAddKved = () => {
-    if (newKved.trim() && !profile.kved.additional.includes(newKved.trim())) {
+    if (newKved.code.trim() && newKved.name.trim() && 
+        !profile.kved.additional.some(k => k.code === newKved.code.trim())) {
       setProfile(prev => ({
         ...prev,
         kved: {
           ...prev.kved,
-          additional: [...prev.kved.additional, newKved.trim()]
+          additional: [...prev.kved.additional, { 
+            code: newKved.code.trim(), 
+            name: newKved.name.trim() 
+          }]
         }
       }));
-      setNewKved('');
+      setNewKved({ code: '', name: '' });
     }
   };
 
@@ -356,30 +360,63 @@ export const FOPProfilePage: React.FC = () => {
               </Typography>
               
               <Stack spacing={2}>
-                <TextField
-                  label="Основний КВЕД"
-                  value={profile.kved.primary}
-                  onChange={(e) => setProfile(prev => ({
-                    ...prev,
-                    kved: { ...prev.kved, primary: e.target.value }
-                  }))}
-                  placeholder="XX.XX"
-                  helperText="Наприклад: 62.01, 68.20"
-                  required
-                  sx={{ maxWidth: 300 }}
-                />
-
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+                <Typography variant="body1" gutterBottom>
+                  Основний КВЕД:
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
                   <TextField
-                    label="Додати додатковий КВЕД"
-                    value={newKved}
-                    onChange={(e) => setNewKved(e.target.value)}
+                    label="Код КВЕДу"
+                    value={profile.kved.primary.code}
+                    onChange={(e) => setProfile(prev => ({
+                      ...prev,
+                      kved: { 
+                        ...prev.kved, 
+                        primary: { ...prev.kved.primary, code: e.target.value }
+                      }
+                    }))}
                     placeholder="XX.XX"
-                    sx={{ flexGrow: 1, maxWidth: 300 }}
+                    helperText="Наприклад: 62.01"
+                    required
+                    sx={{ maxWidth: 150 }}
+                  />
+                  <TextField
+                    label="Назва діяльності"
+                    value={profile.kved.primary.name}
+                    onChange={(e) => setProfile(prev => ({
+                      ...prev,
+                      kved: { 
+                        ...prev.kved, 
+                        primary: { ...prev.kved.primary, name: e.target.value }
+                      }
+                    }))}
+                    placeholder="Розроблення комп'ютерного програмного забезпечення"
+                    helperText="Точна назва згідно з класифікатором КВЕДів"
+                    required
+                    sx={{ flex: 1, maxWidth: 400 }}
+                  />
+                </Box>
+
+                <Typography variant="body1" gutterBottom sx={{ mt: 2 }}>
+                  Додаткові КВЕДи:
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+                  <TextField
+                    label="Код КВЕДу"
+                    value={newKved.code}
+                    onChange={(e) => setNewKved(prev => ({ ...prev, code: e.target.value }))}
+                    placeholder="XX.XX"
+                    sx={{ maxWidth: 150 }}
+                  />
+                  <TextField
+                    label="Назва діяльності"
+                    value={newKved.name}
+                    onChange={(e) => setNewKved(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Назва виду діяльності"
+                    sx={{ flex: 1, maxWidth: 400 }}
                   />
                   <IconButton 
                     onClick={handleAddKved}
-                    disabled={!newKved.trim()}
+                    disabled={!newKved.code.trim() || !newKved.name.trim()}
                     color="primary"
                   >
                     <AddIcon />
@@ -389,13 +426,13 @@ export const FOPProfilePage: React.FC = () => {
                 {profile.kved.additional.length > 0 && (
                   <Box>
                     <Typography variant="body2" gutterBottom>
-                      Додаткові КВЕДи:
+                      Список додаткових КВЕДів:
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                       {profile.kved.additional.map((kved, index) => (
                         <Chip
                           key={index}
-                          label={kved}
+                          label={`${kved.code} - ${kved.name}`}
                           onDelete={() => handleRemoveKved(index)}
                           deleteIcon={<DeleteIcon />}
                         />
@@ -403,6 +440,21 @@ export const FOPProfilePage: React.FC = () => {
                     </Box>
                   </Box>
                 )}
+
+                {/* Популярні КВЕДи для підказки */}
+                <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    💡 Популярні КВЕДи для ІТ-діяльності:
+                  </Typography>
+                  <Typography variant="caption" display="block" sx={{ ml: 1 }}>
+                    • 62.01 - Розроблення комп'ютерного програмного забезпечення<br/>
+                    • 62.02 - Консультування з питань комп'ютерного програмного забезпечення<br/>
+                    • 62.03 - Діяльність з управління комп'ютерним устаткуванням<br/>
+                    • 62.09 - Інша діяльність у сфері інформаційних технологій<br/>
+                    • 63.11 - Оброблення даних, розміщення інформації на веб-вузлах<br/>
+                    • 73.11 - Діяльність рекламних агентств
+                  </Typography>
+                </Box>
               </Stack>
             </Box>
 

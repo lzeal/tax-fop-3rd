@@ -413,7 +413,7 @@ export const ReportsPage: React.FC = () => {
             Попередній перегляд звіту F0103309 - {selectedQuarter.quarter} квартал {selectedQuarter.year}
           </Typography>
         </DialogTitle>
-        <DialogContent sx={{ p: 2 }}>
+        <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
           {profile && reportData && (() => {
             // Створюємо дані для попереднього перегляду
             const accumulatedData = updateAccumulatedDataWithPayments(

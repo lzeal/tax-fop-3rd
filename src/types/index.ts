@@ -98,8 +98,14 @@ export interface FOPProfile {
   // Статус підприємця
   registrationDate: Date; // Дата реєстрації як ФОП
   kved: {
-    primary: string; // Основний КВЕД
-    additional: string[]; // Додаткові КВЕДи
+    primary: {
+      code: string; // Код основного КВЕДу
+      name: string; // Назва основного КВЕДу
+    };
+    additional: Array<{
+      code: string; // Код додаткового КВЕДу
+      name: string; // Назва додаткового КВЕДу
+    }>; // Додаткові КВЕДи
   };
   
   // Податкові параметри (фіксовані для 3-ї групи неплатників ПДВ)

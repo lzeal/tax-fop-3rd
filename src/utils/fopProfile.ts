@@ -23,7 +23,10 @@ export const createEmptyFOPProfile = (): FOPProfile => ({
   },
   registrationDate: new Date(),
   kved: {
-    primary: '',
+    primary: {
+      code: '',
+      name: ''
+    },
     additional: []
   },
   taxGroup: 3,
@@ -55,6 +58,21 @@ export const loadFOPProfile = (): FOPProfile | null => {
     }
     
     const parsed = JSON.parse(stored);
+    
+    // Міграція старого формату КВЕДів (якщо primary - це string)
+    if (typeof parsed.kved?.primary === 'string') {
+      parsed.kved = {
+        primary: {
+          code: parsed.kved.primary || '',
+          name: '' // Буде потрібно заповнити вручну
+        },
+        additional: (parsed.kved.additional || []).map((code: string) => ({
+          code,
+          name: '' // Буде потрібно заповнити вручну
+        }))
+      };
+    }
+    
     return {
       ...parsed,
       registrationDate: new Date(parsed.registrationDate)
@@ -121,8 +139,12 @@ export const validateFOPProfile = (profile: Partial<FOPProfile>): string[] => {
     errors.push('Назва податкової є обов\'язковою');
   }
   
-  if (!profile.kved?.primary?.trim()) {
-    errors.push('Основний КВЕД є обов\'язковим');
+  if (!profile.kved?.primary?.code?.trim()) {
+    errors.push('Код основного КВЕДу є обов\'язковим');
+  }
+  
+  if (!profile.kved?.primary?.name?.trim()) {
+    errors.push('Назва основного КВЕДу є обов\'язковою');
   }
   
   return errors;
