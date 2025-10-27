@@ -30,7 +30,7 @@ export const parseWorksheetWithConfig = (
   // Конвертуємо worksheet в JSON
   const jsonData: any[][] = XLSX.utils.sheet_to_json(worksheet, { 
     header: 1,
-    blankrows: false 
+    blankrows: true 
   });
 
   if (jsonData.length < config.headerRow) {

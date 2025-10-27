@@ -15,7 +15,6 @@ export const getExchangeRate = async (
     const day = String(date.getDate()).padStart(2, '0');
     const dateString = `${year}${month}${day}`;
     
-    console.log('dateString:', dateString);
     const url = `${NBU_API_BASE}?valcode=${currencyCode}&date=${dateString}&json`;
     
     const response = await fetch(url);

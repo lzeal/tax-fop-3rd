@@ -177,7 +177,6 @@ export function generateTemplateData(
     profile.address.building,
     profile.address.apartment
   ].filter(Boolean).join(', ');
-  console.log('calculation', calculation);
   return {
     // Заголовок та документ
     HZ: 'X',
@@ -195,7 +194,7 @@ export function generateTemplateData(
     
     // Період для уточнення
     H1KVP: '',
-    HHYP: 'X',
+    HHYP: '',
     H3KVP: '',
     HYP: '',
     HZYP: '',
