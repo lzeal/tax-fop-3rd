@@ -58,27 +58,6 @@ export const loadFOPProfile = (): FOPProfile | null => {
     
     const parsed = JSON.parse(stored);
     
-    // Міграція старого формату КВЕДів (якщо primary - це string)
-    if (typeof parsed.kved?.primary === 'string') {
-      parsed.kved = {
-        primary: {
-          code: parsed.kved.primary || '',
-          name: '' // Буде потрібно заповнити вручну
-        },
-        additional: (parsed.kved.additional || []).map((code: string) => ({
-          code,
-          name: '' // Буде потрібно заповнити вручну
-        }))
-      };
-    }
-    
-    // Міграція старого формату taxOffice (видаляємо поле code)
-    if (parsed.taxOffice?.code !== undefined) {
-      parsed.taxOffice = {
-        name: parsed.taxOffice.name || ''
-      };
-    }
-    
     return {
       ...parsed,
       registrationDate: new Date(parsed.registrationDate)
