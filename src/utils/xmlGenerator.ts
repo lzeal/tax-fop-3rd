@@ -15,7 +15,7 @@ export const generateTaxReport = (
       year: accumulatedData.year,
       quarter
     },
-    
+
     incomeSection: {
       nationalCurrencyIncome: {
         currentQuarter: quarterData.incomeUAH,
@@ -35,26 +35,34 @@ export const generateTaxReport = (
       taxableIncome: cumulativeData.incomeTotal,
       taxRate: profile.singleTaxRate,
       calculatedTax: cumulativeData.singleTax,
-      previouslyPaid: 0, // Поки що 0, потрібно додати функціонал попередніх платежів
-      toPay: cumulativeData.singleTax
+      previouslyPaid: cumulativeData.singleTax - quarterData.singleTax,
+      toPay: quarterData.singleTax
     },
     
     militaryTaxSection: {
       taxableIncome: cumulativeData.incomeTotal,
       taxRate: profile.militaryTaxRate,
       calculatedTax: cumulativeData.militaryTax,
-      previouslyPaid: 0, // Поки що 0
-      toPay: cumulativeData.militaryTax
+      previouslyPaid: cumulativeData.militaryTax - quarterData.militaryTax,
+      toPay: quarterData.militaryTax
     }
   };
 };
 
 // Перетворення звіту в XML формат
 export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): string => {
-  const currentDate = new Date().toISOString().split('T')[0];
-  const reportDate = new Date().toISOString().split('T')[0];
+  const formatDateToXML = (date: Date): string => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    return `${day}${month}${year}`;
+  };
 
-  const xml = `<?xml version="1.0" encoding="windows-1251"?>
+  const currentDate = formatDateToXML(new Date());
+  const reportDate = formatDateToXML(new Date());
+
+  // const xml = `<?xml version="1.0" encoding="windows-1251"?>
+  const xml = `<?xml version="1.0"?>
 <DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:noNamespaceSchemaLocation="F0103309.xsd">
   <DECLARHEAD>
@@ -63,7 +71,7 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     <C_DOC_SUB>033</C_DOC_SUB>
     <C_DOC_VER>9</C_DOC_VER>
     <C_DOC_TYPE>0</C_DOC_TYPE>
-    <C_DOC_CNT>0</C_DOC_CNT>
+    <C_DOC_CNT>1</C_DOC_CNT>
     <C_REG>${getRegionCode(profile.address.region)}</C_REG>
     <C_RAJ>00</C_RAJ>
     <PERIOD_MONTH>${report.reportingPeriod.quarter * 3}</PERIOD_MONTH>
@@ -77,78 +85,53 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
   </DECLARHEAD>
   
   <DECLARBODY>
-    <!-- Відмітка про звітний період -->
     <HZN>1</HZN>
     
-    <!-- Квартальна звітність -->
     ${report.reportingPeriod.quarter === 1 ? '<H1KV>1</H1KV>' : ''}
     ${report.reportingPeriod.quarter === 2 ? '<HHY>1</HHY>' : ''}
     ${report.reportingPeriod.quarter === 3 ? '<H3KV>1</H3KV>' : ''}
     ${report.reportingPeriod.quarter === 4 ? '<HY>1</HY>' : ''}
     
-    <!-- Звітний рік -->
     <HZY>${report.reportingPeriod.year}</HZY>
     
-    <!-- Код податкової -->
     <HSTI>${profile.taxOffice.name}</HSTI>
     
-    <!-- Найменування платника податків -->
     <HNAME>${profile.fullName}</HNAME>
     
-    <!-- Місцезнаходження -->
     <HLOC>${formatAddress(profile.address)}</HLOC>
     
-    <!-- Email (опціонально) -->
     ${profile.email ? `<HEMAIL>${profile.email}</HEMAIL>` : ''}
     
-    <!-- Телефон (опціонально) -->
     ${profile.phone ? `<HTEL>${profile.phone}</HTEL>` : ''}
     
-    <!-- ІПН платника -->
     <HTIN>${profile.tin}</HTIN>
     
-    <!-- Кількість листів додатків -->
     <HNACTL>0</HNACTL>
     
-    <!-- Таблиця 1: КВЕДи -->
     <T1RXXXXG1S ROWNUM="1">
       <R001C1>${profile.kved.primary.code}</R001C1>
     </T1RXXXXG1S>
     
-    <!-- Додаткові КВЕДи -->
     ${profile.kved.additional.map((kved, index) => `
     <T1RXXXXG1S ROWNUM="${index + 2}">
       <R001C1>${kved.code}</R001C1>
     </T1RXXXXG1S>`).join('')}
     
-    <!-- Таблиця 2: Опис доходів -->
-    <T1RXXXXG2S ROWNUM="1">
-      <R001C2>Доходи від підприємницької діяльності</R001C2>
-    </T1RXXXXG2S>
+    <R006G3>${(report.incomeSection.totalIncome.cumulativeFromYearStart).toFixed(2)}</R006G3>
+    <R008G3>${(report.incomeSection.totalIncome.cumulativeFromYearStart).toFixed(2)}</R008G3>
+    <R011G3>${(report.singleTaxSection.calculatedTax).toFixed(2)}</R011G3>
+    <R012G3>${(report.singleTaxSection.calculatedTax).toFixed(2)}</R012G3>
+    <R013G3>${(report.singleTaxSection.previouslyPaid).toFixed(2)}</R013G3>
+    <R0141G3>${(report.singleTaxSection.toPay).toFixed(2)}</R0141G3>
+    <R014G3>${(report.singleTaxSection.toPay).toFixed(2)}</R014G3>
+
+    <R023G3>${(report.militaryTaxSection.calculatedTax).toFixed(2)}</R023G3>
+    <R024G3>${(report.militaryTaxSection.previouslyPaid).toFixed(2)}</R024G3>
+    <R025G3>${(report.militaryTaxSection.toPay).toFixed(2)}</R025G3>
     
-    <!-- Доходи у звітному кварталі -->
-    <R02G1>${(report.incomeSection.nationalCurrencyIncome.currentQuarter).toFixed(2)}</R02G1>
-    <R02G2>${(report.incomeSection.foreignCurrencyIncome.currentQuarter).toFixed(2)}</R02G2>
-    <R02G3>${(report.incomeSection.totalIncome.currentQuarter).toFixed(2)}</R02G3>
-    
-    <!-- Доходи з початку звітного року -->
-    <R001G3>${(report.incomeSection.nationalCurrencyIncome.cumulativeFromYearStart).toFixed(2)}</R001G3>
-    <R002G3>${(report.incomeSection.foreignCurrencyIncome.cumulativeFromYearStart).toFixed(2)}</R002G3>
-    
-    <!-- Загальна сума доходів з початку року -->
-    <R003G3>${(report.incomeSection.totalIncome.cumulativeFromYearStart).toFixed(2)}</R003G3>
-    
-    <!-- Сума єдиного податку до сплати -->
-    <R015G3>${(report.singleTaxSection.calculatedTax).toFixed(2)}</R015G3>
-    
-    <!-- Сума військового збору до сплати -->
-    <R021G3>${(report.militaryTaxSection.calculatedTax).toFixed(2)}</R021G3>
-    
-    <!-- Дата заповнення -->
     <HFILL>${reportDate}</HFILL>
-    
-    <!-- Особа, відповідальна за достовірність відомостей -->
-    <HBOS>1</HBOS>
+    <HKEXECUTOR>${profile.tin}</HKEXECUTOR>
+    <HBOS>${profile.fullName}</HBOS>
   </DECLARBODY>
 </DECLAR>`;
 
