@@ -64,6 +64,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             Налаштування
           </Button>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigation('/about')}
+            sx={{
+              backgroundColor: location.pathname === '/about' ? 'rgba(255,255,255,0.1)' : 'transparent'
+            }}
+          >
+            Про проект
+          </Button>
         </Toolbar>
       </AppBar>
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>

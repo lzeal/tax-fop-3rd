@@ -7,6 +7,7 @@ import IncomesPage from './pages/IncomesPage';
 import ConfigPage from './pages/ConfigPage';
 import { FOPProfilePage } from './pages/FOPProfilePage';
 import { ReportsPage } from './pages/ReportsPage';
+import AboutPage from './pages/AboutPage';
 
 const theme = createTheme({
   palette: {
@@ -40,6 +41,7 @@ function App() {
             <Route path="/profile" element={<FOPProfilePage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/config" element={<ConfigPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Routes>
         </Layout>
       </Router>

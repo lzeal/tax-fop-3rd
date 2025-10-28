@@ -409,9 +409,7 @@ export const ReportsPage: React.FC = () => {
         }}
       >
         <DialogTitle>
-          <Typography variant="h6">
-            Попередній перегляд звіту F0103309 - {selectedQuarter.quarter} квартал {selectedQuarter.year}
-          </Typography>
+          Попередній перегляд звіту F0103309 - {selectedQuarter.quarter} квартал {selectedQuarter.year}
         </DialogTitle>
         <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
           {profile && reportData && (() => {
