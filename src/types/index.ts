@@ -91,7 +91,6 @@ export interface FOPProfile {
   
   // Податкова інформація
   taxOffice: {
-    code: string; // Код податкової інспекції (4 цифри)
     name: string; // Найменування податкової інспекції
   };
   

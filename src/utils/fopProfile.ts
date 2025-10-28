@@ -18,7 +18,6 @@ export const createEmptyFOPProfile = (): FOPProfile => ({
   phone: '',
   email: '',
   taxOffice: {
-    code: '',
     name: ''
   },
   registrationDate: new Date(),
@@ -70,6 +69,13 @@ export const loadFOPProfile = (): FOPProfile | null => {
           code,
           name: '' // Буде потрібно заповнити вручну
         }))
+      };
+    }
+    
+    // Міграція старого формату taxOffice (видаляємо поле code)
+    if (parsed.taxOffice?.code !== undefined) {
+      parsed.taxOffice = {
+        name: parsed.taxOffice.name || ''
       };
     }
     
@@ -127,12 +133,6 @@ export const validateFOPProfile = (profile: Partial<FOPProfile>): string[] => {
     errors.push('Email є обов\'язковим');
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) {
     errors.push('Некоректний формат email');
-  }
-  
-  if (!profile.taxOffice?.code?.trim()) {
-    errors.push('Код податкової є обов\'язковим');
-  } else if (!/^\d{4}$/.test(profile.taxOffice.code.trim())) {
-    errors.push('Код податкової повинен містити 4 цифри');
   }
   
   if (!profile.taxOffice?.name?.trim()) {

@@ -200,7 +200,7 @@ export function generateTemplateData(
     HZYP: '',
     
     // Контролюючий орган
-    HSTI: profile.taxOffice?.name || '',
+    HSTI: profile.taxOffice.name,
     
     // Платник
     HNAME: profile.fullName,

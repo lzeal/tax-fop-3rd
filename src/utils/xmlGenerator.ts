@@ -90,7 +90,7 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     <HZY>${report.reportingPeriod.year}</HZY>
     
     <!-- Код податкової -->
-    <HSTI>0000</HSTI>
+    <HSTI>${profile.taxOffice.name}</HSTI>
     
     <!-- Найменування платника податків -->
     <HNAME>${profile.fullName}</HNAME>
