@@ -153,7 +153,7 @@ const ConfigPage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Налаштування імпорту
+        Налаштування імпорту виписок з банку
       </Typography>
       
       <Paper sx={{ p: 3, mb: 3 }}>
