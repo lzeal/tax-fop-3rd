@@ -28,7 +28,7 @@ const AboutPage: React.FC = () => {
     {
       name: 'Come Back Alive',
       description: 'Фонд повернись живим',
-      url: 'https://www.monobank.ua/jar/48ZWpEKaAH',
+      url: 'https://savelife.in.ua/',
       color: '#000'
     },
     {
@@ -137,8 +137,9 @@ const AboutPage: React.FC = () => {
                 </Box>
                 
                 <Typography variant="body1" paragraph>
-                  Проект створений українськими розробниками для допомоги підприємцям 
-                  в підготовці податкової звітності F0103309 для ФОП 3-ї групи.
+                  Проект створений розробником як експеримент в першу чергу для себе, щоб спростити
+                  підготовку податкової звітності F0103309 для ФОП 3-ї групи.
+                  На даний моент внесена форма F0103309 за 2025 рік.
                 </Typography>
                 
                 <Typography variant="body1" paragraph>
@@ -166,7 +167,8 @@ const AboutPage: React.FC = () => {
                   </Button>
                   
                   <Typography variant="caption" color="text.secondary">
-                    Репозиторій: github.com/lzeal/tax-fop-3rd
+                    Репозиторій: github.com/lzeal/tax-fop-3rd. 
+                    Пропозиції на Github вітаються!
                   </Typography>
                 </Box>
               </CardContent>
