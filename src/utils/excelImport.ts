@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { ImportConfig, ExcelRow, ParsedPayment } from '../types';
+import { ImportConfig, ParsedPayment } from '../types';
 
 export const readExcelFile = (file: File): Promise<XLSX.WorkBook> => {
   return new Promise((resolve, reject) => {
