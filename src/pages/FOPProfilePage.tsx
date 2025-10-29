@@ -327,11 +327,30 @@ export const FOPProfilePage: React.FC = () => {
               
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <TextField
+                  label="Код податкової інспекції"
+                  value={profile.taxOffice.code}
+                  onChange={(e) => setProfile(prev => ({ 
+                    ...prev, 
+                    taxOffice: { 
+                      ...prev.taxOffice,
+                      code: e.target.value 
+                    }
+                  }))}
+                  placeholder="1309"
+                  required
+                  inputProps={{ maxLength: 4, pattern: '[0-9]{4}' }}
+                  helperText="4-значний код податкової (наприклад: 1305)"
+                />
+                
+                <TextField
                   label="Назва податкової інспекції"
                   value={profile.taxOffice.name}
                   onChange={(e) => setProfile(prev => ({ 
                     ...prev, 
-                    taxOffice: { name: e.target.value }
+                    taxOffice: { 
+                      ...prev.taxOffice,
+                      name: e.target.value 
+                    }
                   }))}
                   placeholder="Друга державна податкова інспекція..."
                   required

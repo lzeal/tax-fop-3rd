@@ -44,6 +44,7 @@ describe('taxCalculations', () => {
       phone: '+380501234567',
       email: 'test@example.com',
       taxOffice: {
+        code: '1234',
         name: 'Test Tax Office'
       },
       registrationDate: new Date('2020-01-01'),

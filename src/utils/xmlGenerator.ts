@@ -58,8 +58,21 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     return `${day}${month}${year}`;
   };
 
+  // Визначення типу періоду: 1-місяць, 2-квартал, 3-півріччя, 4-9міс, 5-рік
+  const getPeriodType = (): string => {
+    switch (report.reportingPeriod.quarter) {
+      case 1: return '2'; // 1-й квартал
+      case 2: return '3'; // півріччя (за 6 місяців)
+      case 3: return '4'; // 9 місяців
+      case 4: return '5'; // рік
+      default: return '2';
+    }
+  };
+
   const currentDate = formatDateToXML(new Date());
   const reportDate = formatDateToXML(new Date());
+  
+  const { region, district } = parseTaxOfficeCode(profile.taxOffice.code);
 
   // const xml = `<?xml version="1.0" encoding="windows-1251"?>
   const xml = `<?xml version="1.0"?>
@@ -72,20 +85,20 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     <C_DOC_VER>9</C_DOC_VER>
     <C_DOC_TYPE>0</C_DOC_TYPE>
     <C_DOC_CNT>1</C_DOC_CNT>
-    <C_REG>${getRegionCode(profile.address.region)}</C_REG>
-    <C_RAJ>00</C_RAJ>
+    <C_REG>${region}</C_REG>
+    <C_RAJ>${district}</C_RAJ>
     <PERIOD_MONTH>${report.reportingPeriod.quarter * 3}</PERIOD_MONTH>
-    <PERIOD_TYPE>2</PERIOD_TYPE>
+    <PERIOD_TYPE>${getPeriodType()}</PERIOD_TYPE>
     <PERIOD_YEAR>${report.reportingPeriod.year}</PERIOD_YEAR>
-    <C_STI_ORIG>0000</C_STI_ORIG>
+    <C_STI_ORIG>${profile.taxOffice.code}</C_STI_ORIG>
     <C_DOC_STAN>1</C_DOC_STAN>
-    <LINKED_DOCS>0</LINKED_DOCS>
+    <LINKED_DOCS xsi:nil="true"/>
     <D_FILL>${currentDate}</D_FILL>
     <SOFTWARE>ФОП Калькулятор v1.0</SOFTWARE>
   </DECLARHEAD>
   
   <DECLARBODY>
-    <HZN>1</HZN>
+    <HZ>1</HZ>
     
     ${report.reportingPeriod.quarter === 1 ? '<H1KV>1</H1KV>' : ''}
     ${report.reportingPeriod.quarter === 2 ? '<HHY>1</HHY>' : ''}
@@ -108,14 +121,10 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     
     <HNACTL>0</HNACTL>
     
-    <T1RXXXXG1S ROWNUM="1">
-      <R001C1>${profile.kved.primary.code}</R001C1>
-    </T1RXXXXG1S>
-    
-    ${profile.kved.additional.map((kved, index) => `
-    <T1RXXXXG1S ROWNUM="${index + 2}">
-      <R001C1>${kved.code}</R001C1>
-    </T1RXXXXG1S>`).join('')}
+    <T1RXXXXG1S ROWNUM="1">${profile.kved.primary.code}</T1RXXXXG1S>
+    ${profile.kved.additional.map((kved, index) => `<T1RXXXXG1S ROWNUM="${index + 2}">${kved.code}</T1RXXXXG1S>`).join('')}
+    <T1RXXXXG2S ROWNUM="1">${profile.kved.primary.name}</T1RXXXXG2S>
+    ${profile.kved.additional.map((kved, index) => `<T1RXXXXG2S ROWNUM="${index + 2}">${kved.name}</T1RXXXXG2S>`).join('')}
     
     <R006G3>${(report.incomeSection.totalIncome.cumulativeFromYearStart).toFixed(2)}</R006G3>
     <R008G3>${(report.incomeSection.totalIncome.cumulativeFromYearStart).toFixed(2)}</R008G3>
@@ -125,10 +134,24 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     <R0141G3>${(report.singleTaxSection.toPay).toFixed(2)}</R0141G3>
     <R014G3>${(report.singleTaxSection.toPay).toFixed(2)}</R014G3>
 
+    <R08G1 xsi:nil="true"/>
+    <R08G2 xsi:nil="true"/>
+    <R08G3 xsi:nil="true"/>
+    <R08G4 xsi:nil="true"/>
+    <R08G5 xsi:nil="true"/>
+    <R08G6 xsi:nil="true"/>
+    <R08G7 xsi:nil="true"/>
+    <R08G8 xsi:nil="true"/>
+    <R08G9 xsi:nil="true"/>
+    <R08G10 xsi:nil="true"/>
+    <R08G11 xsi:nil="true"/>
+    <R08G12 xsi:nil="true"/>
+
     <R023G3>${(report.militaryTaxSection.calculatedTax).toFixed(2)}</R023G3>
     <R024G3>${(report.militaryTaxSection.previouslyPaid).toFixed(2)}</R024G3>
     <R025G3>${(report.militaryTaxSection.toPay).toFixed(2)}</R025G3>
-    
+    <HD1 xsi:nil="true"/>
+    <HD2 xsi:nil="true"/>
     <HFILL>${reportDate}</HFILL>
     <HKEXECUTOR>${profile.tin}</HKEXECUTOR>
     <HBOS>${profile.fullName}</HBOS>
@@ -136,40 +159,6 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
 </DECLAR>`;
 
   return xml;
-};
-
-// Допоміжна функція для отримання коду регіону
-const getRegionCode = (region: string): string => {
-  const regionCodes: Record<string, string> = {
-    'Вінницька область': '05',
-    'Волинська область': '07',
-    'Дніпропетровська область': '12',
-    'Донецька область': '14',
-    'Житомирська область': '18',
-    'Закарпатська область': '21',
-    'Запорізька область': '23',
-    'Івано-Франківська область': '26',
-    'Київська область': '32',
-    'Кіровоградська область': '35',
-    'Луганська область': '44',
-    'Львівська область': '46',
-    'Миколаївська область': '48',
-    'Одеська область': '51',
-    'Полтавська область': '53',
-    'Рівненська область': '56',
-    'Сумська область': '59',
-    'Тернопільська область': '61',
-    'Харківська область': '63',
-    'Херсонська область': '65',
-    'Хмельницька область': '68',
-    'Черкаська область': '71',
-    'Чернівецька область': '73',
-    'Чернігівська область': '74',
-    'м. Київ': '80',
-    'м. Севастополь': '85'
-  };
-  
-  return regionCodes[region] || '00';
 };
 
 // Допоміжна функція для форматування адреси
@@ -183,6 +172,18 @@ const formatAddress = (address: FOPProfile['address']): string => {
   ].filter(Boolean);
   
   return parts.join(', ');
+};
+
+// Допоміжна функція для розбору коду податкової
+export const parseTaxOfficeCode = (code: string): { region: string; district: string } => {
+  if (!/^\d{4}$/.test(code)) {
+    throw new Error('Код податкової повинен містити 4 цифри');
+  }
+  
+  return {
+    region: code.substring(0, 2),
+    district: code.substring(2, 4)
+  };
 };
 
 // Завантаження XML файлу
@@ -206,6 +207,10 @@ export const validateReport = (report: TaxReportF0103309, profile: FOPProfile): 
   
   if (!profile.tin || profile.tin.length !== 10) {
     errors.push('ІПН повинен містити 10 цифр');
+  }
+  
+  if (!profile.taxOffice.code || profile.taxOffice.code.length !== 4) {
+    errors.push('Код податкової повинен містити 4 цифри');
   }
   
   if (!profile.fullName.trim()) {

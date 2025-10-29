@@ -48,6 +48,7 @@ describe('fopProfile', () => {
       expect(profile.tin).toBe('');
       expect(profile.email).toBe('');
       expect(profile.phone).toBe('');
+      expect(profile.taxOffice.code).toBe('');
       expect(profile.taxOffice.name).toBe('');
       expect(profile.kved.primary.code).toBe('');
       expect(profile.kved.primary.name).toBe('');
@@ -93,6 +94,7 @@ describe('fopProfile', () => {
         phone: '+380501234567',
         email: 'ivan@example.com',
         taxOffice: {
+          code: '8001',
           name: 'Перша державна податкова інспекція'
         },
         registrationDate: new Date('2020-01-01'),
@@ -162,6 +164,28 @@ describe('fopProfile', () => {
       expect(errors).toContain('Номер будинку є обов\'язковим');
       expect(errors).toContain('Поштовий індекс є обов\'язковим');
     });
+
+    it('should validate tax office code format', () => {
+      const testProfile = { ...validProfile };
+      
+      // Тест пустого коду
+      testProfile.taxOffice.code = '';
+      let errors = validateFOPProfile(testProfile);
+      expect(errors).toContain('Код податкової є обов\'язковим');
+      
+      // Тест некоректного формату
+      testProfile.taxOffice.code = '123';
+      errors = validateFOPProfile(testProfile);
+      expect(errors).toContain('Код податкової повинен містити 4 цифри');
+      
+      testProfile.taxOffice.code = '12345';
+      errors = validateFOPProfile(testProfile);
+      expect(errors).toContain('Код податкової повинен містити 4 цифри');
+      
+      testProfile.taxOffice.code = '12ab';
+      errors = validateFOPProfile(testProfile);
+      expect(errors).toContain('Код податкової повинен містити 4 цифри');
+    });
   });
 
   describe('saveFOPProfile and loadFOPProfile', () => {
@@ -180,6 +204,7 @@ describe('fopProfile', () => {
       phone: '+380501234567',
       email: 'test@test.ua',
       taxOffice: {
+        code: '1309',
         name: 'Тестова податкова'
       },
       registrationDate: new Date('2020-01-01'),
@@ -205,6 +230,7 @@ describe('fopProfile', () => {
       expect(loadedProfile?.fullName).toBe(testProfile.fullName);
       expect(loadedProfile?.tin).toBe(testProfile.tin);
       expect(loadedProfile?.email).toBe(testProfile.email);
+      expect(loadedProfile?.taxOffice.code).toBe(testProfile.taxOffice.code);
       expect(loadedProfile?.taxOffice.name).toBe(testProfile.taxOffice.name);
     });
 
