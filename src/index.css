@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Стилі для друку/PDF - показуємо тільки #page */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  #page,
+  #page * {
+    visibility: visible;
+  }
+  
+  #page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    transform: translateY(-10mm);
+  }
+}
+
+

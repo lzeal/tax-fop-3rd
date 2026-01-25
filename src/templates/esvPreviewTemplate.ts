@@ -93,12 +93,31 @@ export const esvPreviewTemplate = `<html lang="uk">
   sup { font-size: 0.6em; }
   @media print {
     .no-print { display:none; }
-    body { margin:0; }
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    body { 
+      margin: 0; 
+      padding: 0;
+    }
+    .page {
+      box-shadow: none;
+      width: 100%;
+      margin: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    /* Запобігаємо розриву рядків таблиць */
+    tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
   }
 </style>
 </head>
 <body>
-<div class="page">
+<div class="page" id="page">
   <header>
     <div class="left">
       <div class="header-text">F0133109</div>

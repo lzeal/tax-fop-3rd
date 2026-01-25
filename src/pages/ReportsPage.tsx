@@ -27,6 +27,7 @@ import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
   Visibility as VisibilityIcon,
+  Print as PrintIcon,
 } from '@mui/icons-material';
 
 import { Quarter, FOPProfile } from '../types';
@@ -70,6 +71,10 @@ export const ReportsPage: React.FC = () => {
     const savedProfile = loadFOPProfile();
     setProfile(savedProfile);
   }, []);
+
+  const handlePrintReport = () => {
+    window.print();
+  };
 
   const handleGenerateReport = () => {
     if (!profile) {
@@ -508,7 +513,7 @@ export const ReportsPage: React.FC = () => {
         <DialogTitle>
           Попередній перегляд звіту F0103309 - {selectedQuarter.quarter} квартал {selectedQuarter.year}
         </DialogTitle>
-        <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+        <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }} className="report-dialog-content">
           {profile && reportData && (() => {
             // Створюємо дані для попереднього перегляду
             const accumulatedData = updateAccumulatedDataWithPayments(
@@ -518,18 +523,27 @@ export const ReportsPage: React.FC = () => {
             const calculation = calculateQuarterlyData(accumulatedData, profile, selectedQuarter.quarter);
             
             return (
-              <TaxReportForm
-                profile={profile}
-                calculation={calculation}
-                quarter={selectedQuarter.quarter}
-                year={selectedQuarter.year}
-              />
+              <div className="report-content">
+                <TaxReportForm
+                  profile={profile}
+                  calculation={calculation}
+                  quarter={selectedQuarter.quarter}
+                  year={selectedQuarter.year}
+                />
+              </div>
             );
           })()}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowPreview(false)}>
             Закрити
+          </Button>
+          <Button 
+            variant="outlined" 
+            startIcon={<PrintIcon />}
+            onClick={handlePrintReport}
+          >
+            Друк/PDF
           </Button>
           <Button 
             variant="contained" 
@@ -568,14 +582,16 @@ export const ReportsPage: React.FC = () => {
         <DialogTitle>
           Попередній перегляд звіту ЄСВ F0133109 - {selectedQuarter.year} рік
         </DialogTitle>
-        <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+        <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }} className="report-dialog-content">
           {profile && (() => {
             const reportData = generateESVReportData(selectedQuarter.year);
             return (
-              <ESVReportPreview
-                profile={profile}
-                reportData={reportData}
-              />
+              <div className="report-content">
+                <ESVReportPreview
+                  profile={profile}
+                  reportData={reportData}
+                />
+              </div>
             );
           })()}
         </DialogContent>
@@ -588,6 +604,13 @@ export const ReportsPage: React.FC = () => {
             variant="outlined"
           >
             Налаштування
+          </Button>
+          <Button 
+            variant="outlined" 
+            startIcon={<PrintIcon />}
+            onClick={handlePrintReport}
+          >
+            Друк/PDF
           </Button>
           <Button 
             variant="contained" 
