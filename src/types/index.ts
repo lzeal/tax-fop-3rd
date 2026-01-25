@@ -256,3 +256,50 @@ export interface TaxReportF0103309 {
     toPay: number; // До доплати
   };
 }
+
+// Налаштування ЄСВ для одного місяця
+export interface MonthESVSettings {
+  month: number; // 1-12
+  incomeBase: number; // Сума доходу на яку нараховується ЄСВ (по замовчуванню 8000)
+  contributionRate: number; // Відсоток ЄСВ (по замовчуванню 22%)
+}
+
+// Налаштування ЄСВ для року
+export interface ESVSettings {
+  year: number;
+  monthlySettings: MonthESVSettings[]; // Масив з 12 елементів (по одному на кожен місяць)
+}
+
+// Структура даних для звіту ЄСВ F0133109
+export interface ESVReportData {
+  year: number;
+  months: Array<{
+    month: number; // 1-12
+    incomeBase: number; // R09xxG2 - сума доходу
+    contributionRate: number; // R09xxG3 - відсоток
+    contributionAmount: number; // R09xxG4 - сума ЄСВ (G2 * G3)
+  }>;
+  totalIncomeBase: number; // R09G2 - загальна сума доходу
+  totalContributionAmount: number; // R09G4 - загальна сума ЄСВ
+}
+
+// Структура XML звіту F0133109
+export interface TaxReportF0133109 {
+  reportingPeriod: {
+    year: number;
+  };
+  
+  // Дані по місяцях
+  monthlyData: Array<{
+    month: number; // 1-12
+    incomeBase: number; // Самостійно визначена сума доходу
+    contributionRate: number; // Розмір єдиного внеску, відсоток
+    contributionAmount: number; // Сума єдиного внеску
+  }>;
+  
+  // Підсумкові дані
+  totals: {
+    totalIncomeBase: number; // Загальна сума доходу
+    totalContributionAmount: number; // Загальна сума ЄСВ
+  };
+}

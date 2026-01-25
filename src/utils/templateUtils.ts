@@ -1,4 +1,4 @@
-import { FOPProfile, QuarterlyCalculation } from '../types';
+import { FOPProfile, QuarterlyCalculation, ESVReportData } from '../types';
 import { formatCurrency } from './taxCalculations';
 
 export interface TemplateData {
@@ -121,6 +121,172 @@ export interface TemplateData {
   HEXECUTOR: string;
   HKEXECUTOR: string;
   HBOS: string;
+}
+
+/**
+ * Інтерфейс даних для шаблону ЄСВ F0133109
+ */
+export interface ESVTemplateData {
+  // Тип звіту
+  HZ: string;
+  HZN: string;
+  HZU: string;
+  HD: string;
+  
+  // ІПН та ПІБ
+  HTIN: string;
+  HTINPF: string;
+  HNAME: string;
+  
+  // Період звітності
+  H1KV: string;
+  HHY: string;
+  H3KV: string;
+  HZM: string;
+  HY: string;
+  HZY: string;
+  
+  // Період для уточнення
+  H1KVP: string;
+  HHYP: string;
+  H3KVP: string;
+  HYP: string;
+  HZYP: string;
+  
+  // Тип форми
+  H01: string;
+  H02: string;
+  H03: string;
+  H04: string;
+  
+  // Дата державної реєстрації припинення
+  R06G1: string;
+  R06G2: string;
+  R06G3: string;
+  
+  // Код основного виду економічної діяльності
+  HKVED: string;
+  
+  // Період перебування на спрощеній системі
+  R08G1D: string;
+  R08G2D: string;
+  
+  // Код категорії застрахованої особи
+  R081G1: string;
+  
+  // Місячні рядки таблиці
+  MONTHS_ROWS: string;
+  
+  // Визначення зобов'язань із сплати єдиного внеску (пункт 10)
+  R0101G3: string;
+  R0102G3: string;
+  R0103G3: string;
+  R0104G3: string;
+  R0105G3: string;
+  
+  // Підпис
+  HBOS: string;
+  FILL_DATE: string;
+}
+
+/**
+ * Генерує HTML рядки для місяців у таблиці ЄСВ
+ */
+function generateMonthsRows(reportData: ESVReportData): string {
+  const monthNames = [
+    'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
+    'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
+  ];
+
+  const monthsRows = reportData.months.map((m) => `
+      <tr>
+        <td class="text-center">${monthNames[m.month - 1]}</td>
+        <td class="text-center">${m.incomeBase.toFixed(2)}</td>
+        <td class="text-center">${m.contributionRate.toFixed(2)}</td>
+        <td class="text-center">${m.contributionAmount.toFixed(2)}</td>
+      </tr>`).join('');
+
+  // Додаємо підсумковий рядок
+  const totalRow = `
+      <tr style="font-weight: bold; background-color: #f0f0f0;">
+        <td class="text-center">УСЬОГО</td>
+        <td class="text-center">${reportData.totalIncomeBase.toFixed(2)}</td>
+        <td class="text-center">-</td>
+        <td class="text-center">${reportData.totalContributionAmount.toFixed(2)}</td>
+      </tr>`;
+
+  return monthsRows + totalRow;
+}
+
+/**
+ * Генерує дані для заповнення HTML шаблону звіту ЄСВ F0133109
+ */
+export function generateESVTemplateData(
+  profile: FOPProfile,
+  reportData: ESVReportData
+): ESVTemplateData {
+  return {
+    // Тип звіту (за замовчуванням "Звітна")
+    HZ: 'X',
+    HZN: '',
+    HZU: '',
+    HD: '',
+    
+    // ІПН та ПІБ
+    HTIN: profile.tin,
+    HTINPF: '', // Серія та номер паспорта (за потреби)
+    HNAME: profile.fullName,
+    
+    // Період звітності (річний звіт)
+    H1KV: '',
+    HHY: '',
+    H3KV: '',
+    HZM: '',
+    HY: 'X', // Відмічаємо "рік"
+    HZY: reportData.year.toString(),
+    
+    // Період для уточнення (пусто для звітної)
+    H1KVP: '',
+    HHYP: '',
+    H3KVP: '',
+    HYP: '',
+    HZYP: '',
+    
+    // Тип форми (пусті за замовчуванням)
+    H01: '', // після припинення
+    H02: '', // призначення пенсії
+    H03: '', // перехід на сплату інших податків
+    H04: '', // призначення матеріального забезпечення
+    
+    // Дата державної реєстрації припинення (пусто за замовчуванням)
+    R06G1: '', // число
+    R06G2: '', // місяць
+    R06G3: '', // рік
+    
+    // Код основного виду економічної діяльності
+    HKVED: profile.kved.primary.code || '',
+    
+    // Період перебування на спрощеній системі (початок і кінець року звітності)
+    R08G1D: `01.01.${reportData.year}`, // з дати
+    R08G2D: `31.12.${reportData.year}`, // по дату
+    
+    // Код категорії застрахованої особи (6 - ФОП на спрощеній системі)
+    R081G1: '6',
+    
+    // Генеруємо рядки з місяцями
+    MONTHS_ROWS: generateMonthsRows(reportData),
+    
+    // Визначення зобов'язань із сплати ЄСВ (пункт 10 - для уточнюючих)
+    R0101G3: '', // Сума ЄСВ за даними звітного періоду
+    R0102G3: '', // Уточнена сума ЄСВ
+    R0103G3: '', // Збільшення суми ЄСВ
+    R0104G3: '', // Зменшення суми ЄСВ
+    R0105G3: '', // Сума пені
+    
+    // Підпис
+    HBOS: profile.fullName,
+    FILL_DATE: new Date().toLocaleDateString('uk-UA'),
+  };
 }
 
 /**
@@ -302,7 +468,7 @@ export function generateTemplateData(
 /**
  * Заміняє плейсхолдери {{key}} у HTML шаблоні на реальні значення
  */
-export function populateTemplate(template: string, data: TemplateData): string {
+export function populateTemplate<T extends Record<string, any>>(template: string, data: T): string {
   let result = template;
   
   Object.entries(data).forEach(([key, value]) => {

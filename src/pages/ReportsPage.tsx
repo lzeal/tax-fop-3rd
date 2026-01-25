@@ -47,6 +47,15 @@ import {
 } from '../utils/xmlGenerator';
 import { calculateQuarterlyData } from '../utils/taxCalculations';
 import TaxReportForm from '../components/TaxReportForm';
+import ESVSettingsModal from '../components/ESVSettingsModal';
+import ESVReportPreview from '../components/ESVReportPreview';
+import { 
+  generateESVReportData, 
+  generateESVReport, 
+  generateESVXML, 
+  downloadESVXML,
+  validateESVReport 
+} from '../utils/esvXmlGenerator';
 
 export const ReportsPage: React.FC = () => {
   const [profile, setProfile] = useState<FOPProfile | null>(null);
@@ -54,6 +63,8 @@ export const ReportsPage: React.FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showESVSettings, setShowESVSettings] = useState(false);
+  const [showESVPreview, setShowESVPreview] = useState(false);
 
   useEffect(() => {
     const savedProfile = loadFOPProfile();
@@ -94,6 +105,40 @@ export const ReportsPage: React.FC = () => {
     } catch (error) {
       console.error('Error generating report:', error);
       setErrors(['Помилка генерації звіту']);
+    }
+  };
+
+  const handleGenerateESVReport = () => {
+    if (!profile) {
+      setErrors(['Спочатку заповніть профіль ФОП']);
+      return;
+    }
+
+    if (!isProfileComplete(profile)) {
+      setErrors(['Профіль ФОП заповнений не повністю']);
+      return;
+    }
+
+    try {
+      const reportData = generateESVReportData(selectedQuarter.year);
+      const report = generateESVReport(reportData);
+      const reportErrors = validateESVReport(report, profile);
+      
+      if (reportErrors.length > 0) {
+        setErrors(reportErrors);
+        return;
+      }
+
+      const xml = generateESVXML(report, profile);
+      downloadESVXML(xml, selectedQuarter.year);
+      
+      setSuccess(`Звіт ЄСВ F0133109 успішно згенеровано: F0133109_${selectedQuarter.year}.xml`);
+      setErrors([]);
+      
+      setTimeout(() => setSuccess(null), 5000);
+    } catch (error) {
+      console.error('Error generating ESV report:', error);
+      setErrors(['Помилка генерації звіту ЄСВ']);
     }
   };
 
@@ -375,7 +420,7 @@ export const ReportsPage: React.FC = () => {
               disabled={!profileComplete || !reportData}
               sx={{ minWidth: 200 }}
             >
-              Переглянути звіт
+              Переглянути звіт F0103309
             </Button>
             
             <Button
@@ -386,9 +431,61 @@ export const ReportsPage: React.FC = () => {
               disabled={!profileComplete || !reportData}
               sx={{ minWidth: 200 }}
             >
-              Згенерувати XML звіт
+              Згенерувати F0103309 XML
             </Button>
           </Box>
+
+          {/* Розділ для звіту ЄСВ F0133109 - показуємо тільки для 4 кварталу */}
+          {selectedQuarter.quarter === 4 && (
+            <Card sx={{ mt: 3, borderLeft: '4px solid #1976d2' }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Звіт ЄСВ F0133109 (річний)
+                </Typography>
+                
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Звіт про суми нарахованого єдиного внеску на загальнообов'язкове державне соціальне страхування
+                </Typography>
+
+                <Divider sx={{ my: 2 }} />
+
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  Звіт ЄСВ подається за весь {selectedQuarter.year} рік. 
+                  Перед генерацією переконайтеся, що налаштування ЄСВ для кожного місяця заповнені коректно.
+                </Alert>
+
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setShowESVSettings(true)}
+                    sx={{ minWidth: 200 }}
+                  >
+                    Налаштування ЄСВ
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<VisibilityIcon />}
+                    onClick={() => setShowESVPreview(true)}
+                    disabled={!profileComplete}
+                    sx={{ minWidth: 200 }}
+                  >
+                    Переглянути звіт ЄСВ
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<DownloadIcon />}
+                    onClick={handleGenerateESVReport}
+                    disabled={!profileComplete}
+                    sx={{ minWidth: 200 }}
+                  >
+                    Згенерувати F0133109 XML
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
           
           {profileComplete && reportData && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
@@ -440,6 +537,64 @@ export const ReportsPage: React.FC = () => {
             onClick={() => {
               setShowPreview(false);
               handleGenerateReport();
+            }}
+          >
+            Завантажити XML
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Діалог налаштувань ЄСВ */}
+      <ESVSettingsModal
+        year={selectedQuarter.year}
+        isOpen={showESVSettings}
+        onClose={() => setShowESVSettings(false)}
+        onSave={() => {
+          setSuccess('Налаштування ЄСВ збережено');
+          setTimeout(() => setSuccess(null), 3000);
+        }}
+      />
+
+      {/* Діалог попереднього перегляду звіту ЄСВ */}
+      <Dialog 
+        open={showESVPreview} 
+        onClose={() => setShowESVPreview(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: { height: '90vh' }
+        }}
+      >
+        <DialogTitle>
+          Попередній перегляд звіту ЄСВ F0133109 - {selectedQuarter.year} рік
+        </DialogTitle>
+        <DialogContent sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          {profile && (() => {
+            const reportData = generateESVReportData(selectedQuarter.year);
+            return (
+              <ESVReportPreview
+                profile={profile}
+                reportData={reportData}
+              />
+            );
+          })()}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowESVPreview(false)}>
+            Закрити
+          </Button>
+          <Button 
+            onClick={() => setShowESVSettings(true)}
+            variant="outlined"
+          >
+            Налаштування
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<DownloadIcon />}
+            onClick={() => {
+              setShowESVPreview(false);
+              handleGenerateESVReport();
             }}
           >
             Завантажити XML
