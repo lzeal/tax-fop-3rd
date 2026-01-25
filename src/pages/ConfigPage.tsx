@@ -52,12 +52,15 @@ import {
   getStorageInfo,
   formatFileSize
 } from '../utils/dataExport';
+import ESVSettingsModal from '../components/ESVSettingsModal';
 
 const ConfigPage: React.FC = () => {
   const [configs, setConfigs] = useState<ImportConfig[]>([]);
   const [editingConfig, setEditingConfig] = useState<ImportConfig | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState('');
+  const [showESVSettings, setShowESVSettings] = useState(false);
+  const [esvYear, setEsvYear] = useState<number>(new Date().getFullYear());
 
   useEffect(() => {
     loadConfigs();
@@ -153,6 +156,50 @@ const ConfigPage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
+        Налаштування системи
+      </Typography>
+
+      {/* Секція налаштувань ЄСВ */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Налаштування ЄСВ (Єдиний соціальний внесок)
+        </Typography>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Конфігурація місячних сум доходу та відсотка ЄСВ для річного звіту F0133109
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 2 }}>
+          <FormControl sx={{ minWidth: 120 }}>
+            <InputLabel>Рік</InputLabel>
+            <Select
+              value={esvYear}
+              onChange={(e) => setEsvYear(Number(e.target.value))}
+              label="Рік"
+            >
+              {[2024, 2025, 2026].map(year => (
+                <MenuItem key={year} value={year}>
+                  {year}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          <Button
+            variant="contained"
+            onClick={() => setShowESVSettings(true)}
+          >
+            Налаштувати ЄСВ для {esvYear} року
+          </Button>
+        </Box>
+
+        <Alert severity="info" sx={{ mt: 2 }}>
+          <strong>Примітка:</strong> Налаштування ЄСВ використовуються для генерації річного звіту F0133109. 
+          По замовчуванню: сума доходу 8000 грн/міс, ставка 22%.
+        </Alert>
+      </Paper>
+
+      {/* Секція налаштувань імпорту */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 3 }}>
         Налаштування імпорту виписок з банку
       </Typography>
       
@@ -583,6 +630,16 @@ const ConfigPage: React.FC = () => {
           особливо перед важливими звітними періодами. Зберігайте файли експорту в надійному місці.
         </Alert>
       </Paper>
+
+      {/* Модальне вікно налаштувань ЄСВ */}
+      <ESVSettingsModal
+        year={esvYear}
+        isOpen={showESVSettings}
+        onClose={() => setShowESVSettings(false)}
+        onSave={() => {
+          alert('Налаштування ЄСВ збережено успішно');
+        }}
+      />
     </Box>
   );
 };
