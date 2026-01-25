@@ -21,7 +21,6 @@ export const esvPreviewTemplate = `<html lang="uk">
     min-height: 297mm;
     padding: 10mm 12mm;
     box-sizing: border-box;
-    border: 1px solid red;
   }
 
   header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }

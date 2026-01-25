@@ -181,7 +181,7 @@ export const ReportsPage: React.FC = () => {
         </Typography>
         
         <Typography variant="body2" color="text.secondary" gutterBottom>
-          Звіт про доходи з джерелами їх отримання (3-тя група, неплатник ПДВ)
+          Звіт платника єдиного податку (3-тя група, неплатник ПДВ)
         </Typography>
 
         {errors.length > 0 && (
