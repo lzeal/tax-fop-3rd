@@ -71,7 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               backgroundColor: location.pathname === '/about' ? 'rgba(255,255,255,0.1)' : 'transparent'
             }}
           >
-            Про проект
+            Про проєкт
           </Button>
         </Toolbar>
       </AppBar>

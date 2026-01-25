@@ -26,29 +26,41 @@ import {
 const AboutPage: React.FC = () => {
   const donationLinks = [
     {
-      name: 'Come Back Alive',
-      description: 'Фонд повернись живим',
-      url: 'https://savelife.in.ua/',
+      name: 'Sternenko Fund',
+      description: 'Благодійний фонд Спільнота Стерненка',
+      url: 'https://www.sternenkofund.org/donate',
       color: '#000'
     },
     {
-      name: 'Повернись живим',
-      description: 'Офіційний фонд',
-      url: 'https://savelife.in.ua/uk/donate-ua/',
-      color: '#1976d2'
-    },
-    {
       name: 'Serhiy Prytula Charity Foundation',
-      description: 'Фонд Сергія Притули',
-      url: 'https://prytulafoundation.org/uk',
+      description: 'Благодійний фонд Сергія Притули',
+      url: 'https://prytulafoundation.org',
       color: '#ff9800'
     },
     {
+      name: 'Come Back Alive',
+      description: 'Повернись живим',
+      url: 'https://savelife.in.ua/',
+      color: '#1976d2'
+    },
+    {
+      name: 'Бандеромобіль',
+      description: 'Автомобілі для фронту',
+      url: 'https://www.bandera-car.com.ua/',
+      color: '#d32f2f'
+    },
+    {
+      name: 'Markus Foundation',
+      description: 'для забезпечення потреб 47 ОМБр',
+      url: 'https://markusfoundation.com/',
+      color: '#388e3c'
+    },
+    {
       name: 'United24',
-      description: 'Платформа підтримки України',
+      description: 'Урядова платформа',
       url: 'https://u24.gov.ua/uk',
       color: '#2196f3'
-    }
+    },
   ];
 
   return (
@@ -58,7 +70,7 @@ const AboutPage: React.FC = () => {
         <Box display="flex" alignItems="center" mb={2}>
           <Flag sx={{ fontSize: 40, mr: 2, color: '#ffd700' }} />
           <Typography variant="h3" component="h1" fontWeight="bold">
-            Про проект
+            Про проєкт
           </Typography>
         </Box>
         <Typography variant="h6" sx={{ opacity: 0.9 }}>
@@ -125,7 +137,7 @@ const AboutPage: React.FC = () => {
             </Card>
           </Box>
 
-          {/* Про проект */}
+          {/* Про проєкт */}
           <Box flex="1" minWidth="300px">
             <Card sx={{ height: '100%' }}>
               <CardContent>
@@ -137,7 +149,7 @@ const AboutPage: React.FC = () => {
                 </Box>
                 
                 <Typography variant="body1" paragraph>
-                  Проект створений розробником як експеримент в першу чергу для себе, щоб спростити
+                  проєкт створений розробником як експеримент в першу чергу для себе, щоб спростити
                   підготовку податкової звітності F0103309 для ФОП 3-ї групи.
                   На даний моент внесена форма F0103309 за 2025 рік.
                 </Typography>
@@ -186,14 +198,14 @@ const AboutPage: React.FC = () => {
                   Підтримка ЗСУ 🇺🇦
                 </Typography>
                 <Typography variant="h6" sx={{ opacity: 0.9 }}>
-                  Якщо проект вам допоміг - підтримайте захисників України
+                  Якщо проєкт вам допоміг - підтримайте захисників України
                 </Typography>
               </Box>
             </Box>
 
             <Alert severity="info" sx={{ mb: 3, bgcolor: 'rgba(255,255,255,0.1)', color: 'white' }}>
               <Typography>
-                <strong>Цей проект абсолютно безкоштовний.</strong> Замість подяки розробникам, 
+                <strong>Цей проєкт абсолютно безкоштовний.</strong> Замість подяки розробникам, 
                 ми просимо підтримати ЗСУ у захисті України від російської агресії. 
                 Кожна гривня допомагає наблизити нашу перемогу!
               </Typography>
@@ -201,7 +213,7 @@ const AboutPage: React.FC = () => {
 
             <Box display="flex" gap={2} flexWrap="wrap" mb={3}>
               {donationLinks.map((donation, index) => (
-                <Box key={index} flex="1" minWidth="200px">
+                <Box key={index} sx={{ flex: '0 0 calc(33.333% - 11px)', minWidth: '200px' }}>
                   <Button
                     variant="contained"
                     startIcon={<Favorite />}
@@ -230,6 +242,12 @@ const AboutPage: React.FC = () => {
                 </Box>
               ))}
             </Box>
+
+            <Alert severity="info" sx={{ mb: 3, bgcolor: 'rgba(255,255,255,0.1)', color: 'white' }}>
+              <Typography>
+                Або інший фонд якому Ви довіряєте. Ваша підтримка важлива для нашої перемоги!
+              </Typography>
+            </Alert>
 
             <Divider sx={{ my: 3, bgcolor: 'rgba(255,255,255,0.3)' }} />
 
