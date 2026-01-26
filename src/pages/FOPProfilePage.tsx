@@ -498,6 +498,23 @@ export const FOPProfilePage: React.FC = () => {
                   sx={{ maxWidth: 200 }}
                 />
               </Box>
+              
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" gutterBottom>
+                  Код категорії застрахованої особи (ЄСВ):
+                </Typography>
+                <TextField
+                  label="Код категорії"
+                  value={profile.insuranceCategoryCode}
+                  onChange={(e) => setProfile(prev => ({ 
+                    ...prev, 
+                    insuranceCategoryCode: e.target.value 
+                  }))}
+                  helperText="6 - ФОП на спрощеній системі оподаткування"
+                  inputProps={{ maxLength: 1, pattern: '[0-9]' }}
+                  sx={{ maxWidth: 200 }}
+                />
+              </Box>
             </Box>
 
             {/* Кнопка збереження */}

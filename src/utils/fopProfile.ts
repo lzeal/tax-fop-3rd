@@ -33,6 +33,7 @@ export const createEmptyFOPProfile = (): FOPProfile => ({
   isVATpayer: false,
   singleTaxRate: 0.05,
   militaryTaxRate: 0.01,
+  insuranceCategoryCode: '6', // ФОП на спрощеній системі
   yearlyIncomeLimit: 12000000
 });
 

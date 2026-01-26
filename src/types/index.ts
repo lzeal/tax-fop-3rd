@@ -114,6 +114,9 @@ export interface FOPProfile {
   singleTaxRate: 0.05; // 5% для неплатників ПДВ
   militaryTaxRate: 0.01; // 1% з січня 2025
   
+  // ЄСВ параметри
+  insuranceCategoryCode: string; // Код категорії застрахованої особи (6 - ФОП на спрощеній системі)
+  
   // Ліміти для 3-ї групи (2025)
   yearlyIncomeLimit: 12000000; // 12 млн грн
 }

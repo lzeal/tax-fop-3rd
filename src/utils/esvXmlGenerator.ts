@@ -94,7 +94,7 @@ export const generateESVXML = (
     <HKVED>${profile.kved.primary.code}</HKVED>
     <R08G1D>${formatDateToXML(new Date(report.reportingPeriod.year, 0, 1))}</R08G1D>
     <R08G2D>${formatDateToXML(new Date(report.reportingPeriod.year, 11, 31))}</R08G2D>
-    <R081G1>1</R081G1>
+    <R081G1>${profile.insuranceCategoryCode}</R081G1>
 ${monthlyFields}
     <R09G2>${report.totals.totalIncomeBase.toFixed(2)}</R09G2>
     <R09G4>${report.totals.totalContributionAmount.toFixed(2)}</R09G4>

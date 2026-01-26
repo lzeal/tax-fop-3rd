@@ -271,7 +271,7 @@ export function generateESVTemplateData(
     R08G2D: `31.12.${reportData.year}`, // по дату
     
     // Код категорії застрахованої особи (6 - ФОП на спрощеній системі)
-    R081G1: '6',
+    R081G1: profile.insuranceCategoryCode,
     
     // Генеруємо рядки з місяцями
     MONTHS_ROWS: generateMonthsRows(reportData),
