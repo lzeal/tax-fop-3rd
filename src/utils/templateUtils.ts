@@ -328,10 +328,11 @@ function generateKvedRows(profile: FOPProfile): string {
  * Генерує дані для заповнення HTML шаблону декларації F0103309
  */
 export function generateTemplateData(
-  profile: FOPProfile, 
-  calculation: QuarterlyCalculation, 
-  quarter: number, 
-  year: number
+  profile: FOPProfile,
+  calculation: QuarterlyCalculation,
+  quarter: number,
+  year: number,
+  esvTotalContribution: number | null = null,
 ): TemplateData {
   // Формуємо адресу з компонентів
   const fullAddress = [
@@ -425,7 +426,7 @@ export function generateTemplateData(
     R019G3: '',
     R020G3: '',
     
-    R021G3: '',
+    R021G3: esvTotalContribution != null ? formatCurrency(esvTotalContribution) : '',
     
     // Військовий збір 1-2 група (для 3 групи пусті)
     R08G1: '',
@@ -454,7 +455,7 @@ export function generateTemplateData(
     // Додатки
     HJAR: '',
     T2R0001G2S: '',
-    HD1: '',
+    HD1: esvTotalContribution != null ? 'X' : '',
     HD2: '',
     
     // Підпис

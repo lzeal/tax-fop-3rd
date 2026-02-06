@@ -90,7 +90,7 @@ export const generateTaxReport = (
 };
 
 // Перетворення звіту в XML формат
-export const generateXML = (report: TaxReportF0103309, profile: FOPProfile, linkedESVFilename: string | null = null): string => {
+export const generateXML = (report: TaxReportF0103309, profile: FOPProfile, linkedESVFilename: string | null = null, esvTotalContribution: number | null = null): string => {
   const formatDateToXML = (date: Date): string => {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -188,6 +188,8 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile, link
     <R08G10 xsi:nil="true"/>
     <R08G11 xsi:nil="true"/>
     <R08G12 xsi:nil="true"/>
+
+    ${esvTotalContribution != null ? `<R021G3>${esvTotalContribution.toFixed(2)}</R021G3>` : '<R021G3 xsi:nil="true"/>'}
 
     <R023G3>${(report.militaryTaxSection.calculatedTax).toFixed(2)}</R023G3>
     <R024G3>${(report.militaryTaxSection.previouslyPaid).toFixed(2)}</R024G3>

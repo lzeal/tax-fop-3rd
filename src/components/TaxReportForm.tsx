@@ -8,16 +8,18 @@ interface TaxReportFormProps {
   calculation: QuarterlyCalculation;
   quarter: 1 | 2 | 3 | 4;
   year: number;
+  esvTotalContribution?: number | null;
 }
 
-const TaxReportForm: React.FC<TaxReportFormProps> = ({ 
-  profile, 
+const TaxReportForm: React.FC<TaxReportFormProps> = ({
+  profile,
   calculation,
   quarter,
-  year
+  year,
+  esvTotalContribution = null,
 }) => {
   // Генерація даних для шаблону
-  const templateData = generateTemplateData(profile, calculation, quarter, year);
+  const templateData = generateTemplateData(profile, calculation, quarter, year, esvTotalContribution);
   
   // Заповнення HTML шаблону
   const filledHTML = populateTemplate(htmlTemplate, templateData);

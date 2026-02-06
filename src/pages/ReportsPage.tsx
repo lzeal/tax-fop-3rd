@@ -109,7 +109,11 @@ export const ReportsPage: React.FC = () => {
         ? generateDPSFilename(profile, '331', '5', 12, selectedQuarter.year)
         : null;
 
-      const xml = generateXML(report, profile, linkedESVFilename);
+      const esvTotalContribution = selectedQuarter.quarter === 4
+        ? generateESVReportData(selectedQuarter.year).totalContributionAmount
+        : null;
+
+      const xml = generateXML(report, profile, linkedESVFilename, esvTotalContribution);
 
       downloadXML(xml, mainFilename);
       setSuccess(`Звіт F0103309 успішно згенеровано: ${mainFilename}`);
@@ -533,7 +537,10 @@ export const ReportsPage: React.FC = () => {
               selectedQuarter.year
             );
             const calculation = calculateQuarterlyData(accumulatedData, profile, selectedQuarter.quarter);
-            
+            const esvTotal = selectedQuarter.quarter === 4
+              ? generateESVReportData(selectedQuarter.year).totalContributionAmount
+              : null;
+
             return (
               <div className="report-content">
                 <TaxReportForm
@@ -541,6 +548,7 @@ export const ReportsPage: React.FC = () => {
                   calculation={calculation}
                   quarter={selectedQuarter.quarter}
                   year={selectedQuarter.year}
+                  esvTotalContribution={esvTotal}
                 />
               </div>
             );
