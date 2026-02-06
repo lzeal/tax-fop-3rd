@@ -40,11 +40,13 @@ import {
   getSimplifiedSystemLimitUsage,
   checkSimplifiedSystemLimit
 } from '../utils/accumulatedData';
-import { 
-  generateTaxReport, 
-  generateXML, 
-  downloadXML, 
-  validateReport 
+import {
+  generateTaxReport,
+  generateXML,
+  downloadXML,
+  validateReport,
+  generateDPSFilename,
+  getPeriodTypeCode,
 } from '../utils/xmlGenerator';
 import { calculateQuarterlyData } from '../utils/taxCalculations';
 import TaxReportForm from '../components/TaxReportForm';
@@ -99,11 +101,18 @@ export const ReportsPage: React.FC = () => {
         return;
       }
 
-      const xml = generateXML(report, profile);
-      const filename = `F0103309_${profile.tin}_${selectedQuarter.year}_Q${selectedQuarter.quarter}.xml`;
-      
-      downloadXML(xml, filename);
-      setSuccess(`Звіт F0103309 успішно згенеровано: ${filename}`);
+      const periodType = getPeriodTypeCode(selectedQuarter.quarter);
+      const periodMonth = selectedQuarter.quarter * 3;
+      const mainFilename = generateDPSFilename(profile, '033', periodType, periodMonth, selectedQuarter.year);
+
+      const linkedESVFilename = selectedQuarter.quarter === 4
+        ? generateDPSFilename(profile, '331', '5', 12, selectedQuarter.year)
+        : null;
+
+      const xml = generateXML(report, profile, linkedESVFilename);
+
+      downloadXML(xml, mainFilename);
+      setSuccess(`Звіт F0103309 успішно згенеровано: ${mainFilename}`);
       setErrors([]);
       
       setTimeout(() => setSuccess(null), 5000);
@@ -134,10 +143,13 @@ export const ReportsPage: React.FC = () => {
         return;
       }
 
-      const xml = generateESVXML(report, profile);
-      downloadESVXML(xml, selectedQuarter.year);
-      
-      setSuccess(`Звіт ЄСВ F0133109 успішно згенеровано: F0133109_${selectedQuarter.year}.xml`);
+      const mainFilename = generateDPSFilename(profile, '033', '5', 12, selectedQuarter.year);
+      const esvFilename = generateDPSFilename(profile, '331', '5', 12, selectedQuarter.year);
+
+      const xml = generateESVXML(report, profile, mainFilename);
+      downloadESVXML(xml, selectedQuarter.year, esvFilename);
+
+      setSuccess(`Звіт ЄСВ F0133109 успішно згенеровано: ${esvFilename}`);
       setErrors([]);
       
       setTimeout(() => setSuccess(null), 5000);

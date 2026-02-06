@@ -1,6 +1,46 @@
 import { TaxReportF0103309, FOPProfile, AccumulatedData } from '../types';
 import { getCumulativeData, getQuarterData } from './accumulatedData';
 
+// Визначення типу періоду для кварталу: 1-місяць, 2-квартал, 3-півріччя, 4-9міс, 5-рік
+export const getPeriodTypeCode = (quarter: 1 | 2 | 3 | 4): string => {
+  switch (quarter) {
+    case 1: return '2';
+    case 2: return '3';
+    case 3: return '4';
+    case 4: return '5';
+    default: return '2';
+  }
+};
+
+// Генерація офіційного імені файлу за стандартом ДПС
+// Формат: {C_STI_ORIG}{TIN}{C_DOC}{C_DOC_SUB}{C_DOC_VER(02)}{C_DOC_STAN}{C_DOC_CNT(00000001)}{PERIOD_TYPE}{PERIOD_MONTH(02)}{PERIOD_YEAR}{C_STI_ORIG}.xml
+export const generateDPSFilename = (
+  profile: FOPProfile,
+  docSub: string,
+  periodType: string,
+  periodMonth: number,
+  year: number,
+): string => {
+  const cDoc = 'F01';
+  const cDocVer = '09';
+  const cDocStan = '1';
+  const cDocCnt = '00000001';
+
+  return [
+    profile.taxOffice.code,
+    profile.tin,
+    cDoc,
+    docSub,
+    cDocVer,
+    cDocStan,
+    cDocCnt,
+    periodType,
+    periodMonth.toString().padStart(2, '0'),
+    year.toString(),
+    profile.taxOffice.code,
+  ].join('') + '.xml';
+};
+
 // Генерація звіту F0103309 на основі профілю ФОП та накопичувальних даних
 export const generateTaxReport = (
   profile: FOPProfile,
@@ -50,7 +90,7 @@ export const generateTaxReport = (
 };
 
 // Перетворення звіту в XML формат
-export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): string => {
+export const generateXML = (report: TaxReportF0103309, profile: FOPProfile, linkedESVFilename: string | null = null): string => {
   const formatDateToXML = (date: Date): string => {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -58,25 +98,28 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     return `${day}${month}${year}`;
   };
 
-  // Визначення типу періоду: 1-місяць, 2-квартал, 3-півріччя, 4-9міс, 5-рік
-  const getPeriodType = (): string => {
-    switch (report.reportingPeriod.quarter) {
-      case 1: return '2'; // 1-й квартал
-      case 2: return '3'; // півріччя (за 6 місяців)
-      case 3: return '4'; // 9 місяців
-      case 4: return '5'; // рік
-      default: return '2';
-    }
-  };
-
   const currentDate = formatDateToXML(new Date());
   const reportDate = formatDateToXML(new Date());
-  
+
   const { region, district } = parseTaxOfficeCode(profile.taxOffice.code);
+
+  const linkedDocsXml = linkedESVFilename
+    ? `<LINKED_DOCS>
+      <DOC NUM="1" TYPE="1">
+        <C_DOC>F01</C_DOC>
+        <C_DOC_SUB>331</C_DOC_SUB>
+        <C_DOC_VER>9</C_DOC_VER>
+        <C_DOC_TYPE>0</C_DOC_TYPE>
+        <C_DOC_CNT>1</C_DOC_CNT>
+        <C_DOC_STAN>1</C_DOC_STAN>
+        <FILENAME>${linkedESVFilename}</FILENAME>
+      </DOC>
+    </LINKED_DOCS>`
+    : '<LINKED_DOCS xsi:nil="true"/>';
 
   // const xml = `<?xml version="1.0" encoding="windows-1251"?>
   const xml = `<?xml version="1.0"?>
-<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="F0103309.xsd">
   <DECLARHEAD>
     <TIN>${profile.tin}</TIN>
@@ -88,11 +131,11 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     <C_REG>${region}</C_REG>
     <C_RAJ>${district}</C_RAJ>
     <PERIOD_MONTH>${report.reportingPeriod.quarter * 3}</PERIOD_MONTH>
-    <PERIOD_TYPE>${getPeriodType()}</PERIOD_TYPE>
+    <PERIOD_TYPE>${getPeriodTypeCode(report.reportingPeriod.quarter)}</PERIOD_TYPE>
     <PERIOD_YEAR>${report.reportingPeriod.year}</PERIOD_YEAR>
     <C_STI_ORIG>${profile.taxOffice.code}</C_STI_ORIG>
     <C_DOC_STAN>1</C_DOC_STAN>
-    <LINKED_DOCS xsi:nil="true"/>
+    ${linkedDocsXml}
     <D_FILL>${currentDate}</D_FILL>
     <SOFTWARE>ФОП Калькулятор v1.0</SOFTWARE>
   </DECLARHEAD>
@@ -150,7 +193,7 @@ export const generateXML = (report: TaxReportF0103309, profile: FOPProfile): str
     <R023G3>${(report.militaryTaxSection.calculatedTax).toFixed(2)}</R023G3>
     <R024G3>${(report.militaryTaxSection.previouslyPaid).toFixed(2)}</R024G3>
     <R025G3>${(report.militaryTaxSection.toPay).toFixed(2)}</R025G3>
-    <HD1 xsi:nil="true"/>
+    ${linkedESVFilename ? '<HD1>1</HD1>' : '<HD1 xsi:nil="true"/>'}
     <HD2 xsi:nil="true"/>
     <HFILL>${reportDate}</HFILL>
     <HKEXECUTOR>${profile.tin}</HKEXECUTOR>

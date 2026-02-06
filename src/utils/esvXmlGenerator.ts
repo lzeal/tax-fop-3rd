@@ -43,7 +43,8 @@ export const generateESVReport = (
 // Генерація XML для звіту ЄСВ F0133109
 export const generateESVXML = (
   report: TaxReportF0133109,
-  profile: FOPProfile
+  profile: FOPProfile,
+  linkedMainFilename: string,
 ): string => {
   const formatDateToXML = (date: Date): string => {
     const day = date.getDate().toString().padStart(2, '0');
@@ -57,10 +58,10 @@ export const generateESVXML = (
 
   // Генерація полів R09xxG2, R09xxG3, R09xxG4 для кожного місяця
   const monthlyFields = report.monthlyData.map((monthData, index) => {
-    const monthNum = (index + 1).toString().padStart(2, '0');
-    return `    <R09${monthNum === '10' ? '10' : monthNum === '11' ? '11' : monthNum === '12' ? '12' : monthNum}G2>${monthData.incomeBase.toFixed(2)}</R09${monthNum === '10' ? '10' : monthNum === '11' ? '11' : monthNum === '12' ? '12' : monthNum}G2>
-    <R09${monthNum === '10' ? '10' : monthNum === '11' ? '11' : monthNum === '12' ? '12' : monthNum}G3>${monthData.contributionRate.toFixed(2)}</R09${monthNum === '10' ? '10' : monthNum === '11' ? '11' : monthNum === '12' ? '12' : monthNum}G3>
-    <R09${monthNum === '10' ? '10' : monthNum === '11' ? '11' : monthNum === '12' ? '12' : monthNum}G4>${monthData.contributionAmount.toFixed(2)}</R09${monthNum === '10' ? '10' : monthNum === '11' ? '11' : monthNum === '12' ? '12' : monthNum}G4>`;
+    const monthNum = (index + 1).toString();
+    return `    <R09${monthNum}G2>${monthData.incomeBase.toFixed(2)}</R09${monthNum}G2>
+    <R09${monthNum}G3>${monthData.contributionRate.toFixed(2)}</R09${monthNum}G3>
+    <R09${monthNum}G4>${monthData.contributionAmount.toFixed(2)}</R09${monthNum}G4>`;
   }).join('\n');
 
   const xml = `<?xml version="1.0"?>
@@ -80,7 +81,17 @@ export const generateESVXML = (
     <PERIOD_YEAR>${report.reportingPeriod.year}</PERIOD_YEAR>
     <C_STI_ORIG>${profile.taxOffice.code}</C_STI_ORIG>
     <C_DOC_STAN>1</C_DOC_STAN>
-    <LINKED_DOCS xsi:nil="true"/>
+    <LINKED_DOCS>
+      <DOC NUM="1" TYPE="2">
+        <C_DOC>F01</C_DOC>
+        <C_DOC_SUB>033</C_DOC_SUB>
+        <C_DOC_VER>9</C_DOC_VER>
+        <C_DOC_TYPE>0</C_DOC_TYPE>
+        <C_DOC_CNT>1</C_DOC_CNT>
+        <C_DOC_STAN>1</C_DOC_STAN>
+        <FILENAME>${linkedMainFilename}</FILENAME>
+      </DOC>
+    </LINKED_DOCS>
     <D_FILL>${currentDate}</D_FILL>
     <SOFTWARE>ФОП Калькулятор v1.0</SOFTWARE>
   </DECLARHEAD>
@@ -106,16 +117,16 @@ ${monthlyFields}
 };
 
 // Завантаження XML файлу
-export const downloadESVXML = (xml: string, year: number): void => {
+export const downloadESVXML = (xml: string, year: number, filename?: string): void => {
   const blob = new Blob([xml], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   link.href = url;
-  link.download = `F0133109_${year}.xml`;
+  link.download = filename || `F0133109_${year}.xml`;
   document.body.appendChild(link);
   link.click();
-  
+
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
@@ -145,8 +156,8 @@ export const validateESVReport = (report: TaxReportF0133109, profile: FOPProfile
   }
   
   report.monthlyData.forEach((monthData, index) => {
-    if (monthData.incomeBase <= 0) {
-      errors.push(`Сума доходу за ${index + 1} місяць повинна бути більшою за 0`);
+    if (monthData.incomeBase < 0) {
+      errors.push(`Сума доходу за ${index + 1} місяць не може бути від'ємною`);
     }
     if (monthData.contributionRate <= 0 || monthData.contributionRate > 100) {
       errors.push(`Ставка ЄСВ за ${index + 1} місяць повинна бути від 0 до 100%`);

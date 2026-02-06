@@ -310,7 +310,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain('<?xml version="1.0"?>');
       expect(xml).toContain('<DECLAR');
@@ -324,7 +324,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain('<C_DOC>F01</C_DOC>');
       expect(xml).toContain('<C_DOC_SUB>331</C_DOC_SUB>');
@@ -336,7 +336,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain(`<TIN>${profile.tin}</TIN>`);
       expect(xml).toContain(`<HTIN>${profile.tin}</HTIN>`);
@@ -347,7 +347,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain('<PERIOD_MONTH>12</PERIOD_MONTH>');
       expect(xml).toContain('<PERIOD_TYPE>5</PERIOD_TYPE>');
@@ -360,7 +360,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       // Check month 1
       expect(xml).toContain('<R0901G2>');
@@ -383,7 +383,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       // Check month 10
       expect(xml).toContain('<R0910G2>');
@@ -406,7 +406,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain('<R09G2>96000.00</R09G2>');
       expect(xml).toContain('<R09G4>21120.00</R09G4>');
@@ -417,7 +417,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       // Start of year: 01012025
       expect(xml).toContain('<R08G1D>01012025</R08G1D>');
@@ -430,7 +430,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain(`<HKVED>${profile.kved.primary.code}</HKVED>`);
     });
@@ -440,7 +440,7 @@ describe('esvXmlGenerator', () => {
       const reportData = createMockReportData();
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain(`<HNAME>${profile.fullName}</HNAME>`);
       expect(xml).toContain(`<HBOS>${profile.fullName}</HBOS>`);
@@ -454,7 +454,7 @@ describe('esvXmlGenerator', () => {
       reportData.months[0].contributionAmount = 1760;
       const report = generateESVReport(reportData);
 
-      const xml = generateESVXML(report, profile);
+      const xml = generateESVXML(report, profile, 'test-main-report.xml');
 
       expect(xml).toContain('8000.00');
       expect(xml).toContain('22.00');
