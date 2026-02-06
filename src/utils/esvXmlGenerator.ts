@@ -1,6 +1,6 @@
 import { TaxReportF0133109, FOPProfile, ESVReportData } from '../types';
 import { loadESVSettings, calculateMonthESV } from './esvSettings';
-import { parseTaxOfficeCode } from './xmlGenerator';
+import { parseTaxOfficeCode, encodeWindows1251 } from './xmlGenerator';
 
 // Генерація даних звіту ЄСВ на основі налаштувань
 export const generateESVReportData = (year: number): ESVReportData => {
@@ -64,7 +64,7 @@ export const generateESVXML = (
     <R09${monthNum}G4>${monthData.contributionAmount.toFixed(2)}</R09${monthNum}G4>`;
   }).join('\n');
 
-  const xml = `<?xml version="1.0"?>
+  const xml = `<?xml version="1.0" encoding="windows-1251"?>
 <DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:noNamespaceSchemaLocation="F0133109.xsd">
   <DECLARHEAD>
@@ -116,9 +116,10 @@ ${monthlyFields}
   return xml;
 };
 
-// Завантаження XML файлу
+// Завантаження XML файлу в кодуванні Windows-1251
 export const downloadESVXML = (xml: string, year: number, filename?: string): void => {
-  const blob = new Blob([xml], { type: 'application/xml' });
+  const encoded = encodeWindows1251(xml);
+  const blob = new Blob([encoded.buffer as ArrayBuffer], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
