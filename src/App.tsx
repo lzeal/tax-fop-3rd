@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
 import IncomesPage from './pages/IncomesPage';
 import ConfigPage from './pages/ConfigPage';
@@ -33,6 +34,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <Analytics />
       <Router>
         <Layout>
           <Routes>
