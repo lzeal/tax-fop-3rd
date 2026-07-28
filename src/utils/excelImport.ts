@@ -44,9 +44,17 @@ export const parseWorksheetWithConfig = (
   const columnIndices: Record<string, number> = {};
   
   const findColumnIndex = (columnName: string): number => {
-    const index = headers.findIndex(header => 
-      header && header.toString().toLowerCase().includes(columnName.toLowerCase())
+    // const index = headers.findIndex(header => 
+    //   header && header.toString().toLowerCase().includes(columnName.toLowerCase())
+    // );
+    let index = headers.findIndex(header =>
+      header && header.toString().trim().toLowerCase() === columnName.trim().toLowerCase()
     );
+    if (index === -1) {
+      index = headers.findIndex(header => 
+        header && header.toString().toLowerCase().includes(columnName.toLowerCase())
+      );
+    }
     if (index === -1) {
       throw new Error(`Не знайдено колонку: ${columnName}`);
     }
@@ -168,8 +176,8 @@ const parseRowToPayment = (
     const signValue = row[columnIndices.amountSign];
     if (signValue) {
       const sign = signValue.toString().trim();
-      // isIncoming = sign === '+' || sign.toLowerCase() === 'дебет';
-      isIncoming = sign.toLowerCase() === 'к';
+      isIncoming = sign === '+' || sign.toLowerCase() === 'кредит' || sign.toLowerCase() === 'к' ;
+      // isIncoming = sign.toLowerCase() === 'к';
     }
   }
 
